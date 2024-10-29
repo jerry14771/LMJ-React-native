@@ -7,6 +7,7 @@ const Order = () => {
   return (
     <View>
       <Header/>
+      <Text>Order</Text>
     </View>
   )
 }
