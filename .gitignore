@@ -1,5 +1,7 @@
 # OSX
 #
+config.js
+
 .DS_Store
 
 # Xcode
@@ -65,4 +67,3 @@ yarn-error.log
 # testing
 /coverage
 
-Components/config.js

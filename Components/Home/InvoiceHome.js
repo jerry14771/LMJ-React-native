@@ -2,7 +2,7 @@ import { View, Text, Image, TouchableOpacity, StatusBar, FlatList, StyleSheet } 
 import React, { useState, useCallback } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
-import config from '../config';
+import config from '../../config';
 import Header from './Header';
 
 // TriangleCorner Component

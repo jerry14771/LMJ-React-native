@@ -1,7 +1,7 @@
 import { View, Text, Image, Modal, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import React, { useState } from 'react';
 import ImageView from 'react-native-image-viewing';
-import config from '../config';
+import config from '../../config';
 import Header from './Header';
 
 const InvoiceDetail = ({ route }) => {
