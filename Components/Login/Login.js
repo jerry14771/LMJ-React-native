@@ -104,7 +104,6 @@ function Login() {
                                 autoCapitalize="none"
                             />
                         </View>
-
                         <View style={styles.inputContainer}>
                             <TextInput
                                 style={styles.input}
