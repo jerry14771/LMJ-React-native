@@ -4,6 +4,7 @@ import { DrawerContentScrollView } from '@react-navigation/drawer'
 import { useNavigation } from '@react-navigation/native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useDrawerStatus } from '@react-navigation/drawer';
+import config from '../../config'
 
 const CustomDrawer = (props) => {
 
@@ -45,7 +46,7 @@ const CustomDrawer = (props) => {
 
 
   const fetchUserDetail = async () => {
-    const url = 'https://sharmaglass.in/LMJ/adminDetail.php';
+    const url = config.BASE_URL+'adminDetail.php';
     const response = await fetch(url, {
       method: 'POST',
       headers: {

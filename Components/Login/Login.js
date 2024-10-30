@@ -17,6 +17,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 import { useNavigation, useRoute } from '@react-navigation/native';
+import config from '../../config';
 
 function Login() {
     const [loading, setLoading] = useState(false); // Loading state
@@ -33,7 +34,7 @@ function Login() {
 
         try {
             setLoading(true);
-            const response = await fetch('https://sharmaglass.in/LMJ/login.php', {
+            const response = await fetch(config.BASE_URL+'login.php', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

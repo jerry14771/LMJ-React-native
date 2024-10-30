@@ -3,6 +3,7 @@ import { View, TextInput, Text, TouchableOpacity, Image, StyleSheet, Alert, Scro
 import ImagePicker from 'react-native-image-crop-picker';
 import Header from './Header';
 import { useNavigation } from '@react-navigation/native';
+import config from '../../config';
 
 
 const screenWidth = Dimensions.get('window').width;
@@ -107,7 +108,7 @@ const AddInvoice = () => {
 
   const handleSubmit = async () => {
     setActivity(true);
-    const apiURL = 'https://sharmaglass.in/LMJ/insertInvoice.php';
+    const apiURL = config.BASE_URL+'insertInvoice.php';
     const formData = new FormData();
 
     formData.append('name', name);

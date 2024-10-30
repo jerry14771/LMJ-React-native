@@ -5,6 +5,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useFocusEffect } from '@react-navigation/native';
 import ImagePicker from 'react-native-image-crop-picker';
 import Header from './Header';
+import config from '../../config';
 
 const Settings = () => {
     const [userimg, setuserImg] = useState(null);
@@ -26,7 +27,7 @@ const Settings = () => {
     );
 
     const fetchUserDetail = async () => {
-        const url = 'https://sharmaglass.in/LMJ/adminDetail.php';
+        const url = config.BASE_URL+'adminDetail.php';
         const response = await fetch(url, {
             method: 'POST',
             headers: {
