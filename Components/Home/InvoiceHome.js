@@ -51,7 +51,7 @@ const InvoiceHome = () => {
             <View style={styles.card}>
                 <TriangleCorner text={item.invoice_number} />
                 {/* <TriangleCorner text="1223" /> */}
-                
+
                 <Image source={pricelist} style={styles.image} />
                 <View style={{ flexShrink: 1 }}>
                     <Text style={styles.nameText}>
@@ -83,6 +83,17 @@ const InvoiceHome = () => {
                     <Image source={invoice} style={styles.buttonImage} />
                     <Text style={styles.buttonText}>Create Invoice</Text>
                 </TouchableOpacity>
+
+
+                <TouchableOpacity
+                    style={styles.touchable}
+                    onPress={() => navigation.navigate("ListAllOrder")}
+                >
+                    <Image source={nameLogo} style={styles.buttonImage} />
+                    <Text style={styles.buttonText}>List All Orders</Text>
+                </TouchableOpacity>
+
+
                 <TouchableOpacity
                     style={styles.touchable}
                     onPress={() => {/* Add your navigation here */ }}
@@ -97,13 +108,7 @@ const InvoiceHome = () => {
                     <Image source={mobileLogo} style={styles.buttonImage} />
                     <Text style={styles.buttonText}>Search By Mobile</Text>
                 </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.touchable}
-                    onPress={() => {/* Add your navigation here */ }}
-                >
-                    <Image source={nameLogo} style={styles.buttonImage} />
-                    <Text style={styles.buttonText}>Search By Name</Text>
-                </TouchableOpacity>
+
             </View>
 
             <View style={styles.titleContainer}>

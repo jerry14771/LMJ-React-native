@@ -4,6 +4,7 @@ import { createStackNavigator } from '@react-navigation/stack';
 import InvoiceHome from './InvoiceHome';
 import AddInvoice from './AddInvoice';
 import InvoiceDetail from './InvoiceDetail';
+import ListAllOrder from './ListAllOrder';
 
 
 
@@ -15,6 +16,7 @@ const InvoiceNav = () => {
     <InvoiceStack.Screen name="InvoiceHome" component={InvoiceHome} options={{ headerShown: false }} />
     <InvoiceStack.Screen name="AddInvoice" component={AddInvoice} options={{ headerShown: false }} />
     <InvoiceStack.Screen name="InvoiceDetail" component={InvoiceDetail} options={{ headerShown: false }} />
+    <InvoiceStack.Screen name="ListAllOrder" component={ListAllOrder} options={{ headerShown: false }} />
   </InvoiceStack.Navigator>
   )
 }
