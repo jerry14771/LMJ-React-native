@@ -1,5 +1,5 @@
 import { View, Text, Image, TouchableOpacity, StatusBar, Modal, StyleSheet } from 'react-native'
-import React,{useState} from 'react'
+import React, { useState } from 'react'
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
@@ -18,7 +18,7 @@ const Header = () => {
         setModalVisible(false);
     };
 
-    const handleConfirm = async() => {
+    const handleConfirm = async () => {
         await AsyncStorage.clear();
 
         setModalVisible(false);
@@ -31,7 +31,7 @@ const Header = () => {
 
     return (
         <View style={{ backgroundColor: 'black', justifyContent: "space-between", alignItems: "center", flexDirection: 'row', paddingHorizontal: 15 }}>
-            <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ height: 65, width:35, justifyContent:"center" }} >
+            <TouchableOpacity onPress={() => navigation.openDrawer()} style={{ height: 65, width: 35, justifyContent: "center" }} >
                 <Image
                     source={hamburger}
                     style={{ height: 25, width: 25 }}
@@ -42,9 +42,9 @@ const Header = () => {
                 <Image source={logo} style={{ height: 65, width: 65 }} />
             </View>
 
-           <View>
-            <Text>           </Text>
-           </View>
+            <View>
+                <Text>           </Text>
+            </View>
 
             <Modal
                 transparent={true}
@@ -94,12 +94,12 @@ const styles = StyleSheet.create({
     modalTitle: {
         fontSize: 20,
         fontWeight: 'bold',
-        color:"gray"
+        color: "gray"
     },
     modalMessage: {
         marginVertical: 10,
         textAlign: 'center',
-        color:"gray"
+        color: "gray"
     },
     buttonContainer: {
         flexDirection: 'row',

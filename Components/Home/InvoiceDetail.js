@@ -4,7 +4,7 @@ import ImageView from 'react-native-image-viewing';
 import config from '../../config';
 import Header from './Header';
 import { useNavigation } from '@react-navigation/native';
-
+import Share from 'react-native-share';
 
 const InvoiceDetail = ({ route }) => {
     const { invoice } = route.params;
@@ -19,6 +19,7 @@ const InvoiceDetail = ({ route }) => {
     const binLogo = require("../../assets/delete.png");
     const phoneLogo = require('../../assets/phone_call.png');
     const navigation = useNavigation();
+    const shareLogo = require("../../assets/share.png");
     const handleImagePress = (index) => {
         setSelectedImageIndex(index);
         setIsVisible(true);
@@ -81,6 +82,55 @@ const InvoiceDetail = ({ route }) => {
         }
     };
 
+
+    const runShare = async () => {
+        try {
+            // Format the current date and time
+            const currentDate = formatDate(new Date().toISOString());
+    
+            // Join all design and receipt image URLs with double line breaks for clearer separation
+            const designImageLinks = designImages.map(img => img.uri).join('\n\n');
+            const receiptImageLinks = receiptImages.map(img => img.uri).join('\n\n');
+    
+            // Construct the complete share message with improved formatting for line breaks
+            const shareMessage = `Invoice Details:
+            \nName: ${invoice.name}
+            \nDate: ${currentDate}
+            \nMobile: ${invoice.mobile}
+            \nAddress: ${invoice.address}
+            \nTotal Amount: ₹${parseInt(invoice.totalAmount)}
+            \nPaid Amount: ₹${parseInt(invoice.amountGiven)}
+            \nRemaining Amount: ₹${parseInt(invoice.totalAmount) - parseInt(invoice.amountGiven)}
+            \nDescription: ${invoice.description}
+            
+            \nDesign Images:\n${designImageLinks}
+            
+            \nReceipt Images:\n${receiptImageLinks}`;
+    
+            // Prepare all image URIs for sharing
+            const allImages = [...designImages, ...receiptImages].map(img => img.uri);
+    
+            const shareOptions = {
+                title: 'Share Invoice Details',
+                message: shareMessage,
+                urls: allImages,  // Include all images in the share options
+                social: Share.Social.WHATSAPP,
+            };
+    
+            // Attempt to share using react-native-share
+            const result = await Share.open(shareOptions);
+    
+            if (result.success) {
+            }
+        } catch (error) {
+            if (error.message !== 'User did not share') {
+            }
+        }
+    };
+    
+    
+    
+
     return (
         <View style={styles.container}>
             <Header />
@@ -133,6 +183,8 @@ const InvoiceDetail = ({ route }) => {
 
                 <ImageView images={[...designImages, ...receiptImages]} imageIndex={selectedImageIndex} visible={visible} onRequestClose={() => setIsVisible(false)} />
 
+                <TouchableOpacity onPress={runShare} style={{ backgroundColor: "white", justifyContent: "center", padding: 10, borderRadius: 5, flexDirection: "row", alignItems:"center", gap:10 }}><Image source={shareLogo} style={{ height: 30, width: 30 }} /><Text style={{ color:"black", fontSize:18, fontWeight:"700" }}>Share</Text></TouchableOpacity>
+
                 <Modal transparent={true} visible={confirmationVisible} animationType="slide" onRequestClose={() => setConfirmationVisible(false)}>
                     <View style={styles.modalContainer}>
                         <View style={styles.modalContent}>
@@ -145,7 +197,6 @@ const InvoiceDetail = ({ route }) => {
                     </View>
                 </Modal>
 
-                {/* New Delete Confirmation Modal */}
                 <Modal transparent={true} visible={deleteConfirmationVisible} animationType="slide" onRequestClose={() => setDeleteConfirmationVisible(false)}>
                     <View style={styles.modalContainer}>
                         <View style={styles.modalContent}>
