@@ -1,15 +1,20 @@
-import React, { useState } from 'react';
-import { View, TextInput, Text, TouchableOpacity, Image, StyleSheet, Alert, ScrollView, Dimensions, ActivityIndicator } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { FlatList, Modal, View, TextInput, Text, TouchableOpacity, Image, StyleSheet, Alert, ScrollView, Dimensions, ActivityIndicator, Button } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
+import DatePicker from 'react-native-date-picker';
 import Header from './Header';
 import { useNavigation } from '@react-navigation/native';
 import config from '../../config';
+import Contacts from 'react-native-contacts';
+import ContactPicker from 'react-native-select-contact';
 
 
 const screenWidth = Dimensions.get('window').width;
 const imageSize = (screenWidth - 75) / 3;
 
 const AddInvoice = () => {
+  const calanderLogo = require('../../assets/calendar.png');
+  const closeLogo = require("../../assets/close.png");
   const navigation = useNavigation();
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
@@ -19,27 +24,38 @@ const AddInvoice = () => {
   const [designImages, setDesignImages] = useState([]);
   const [totalAmount, setTotalAmount] = useState('');
   const [amountGiven, setAmountGiven] = useState('');
-  const [activity, setActivity] = useState(false);
   const [invoice_number, setinvoice_number] = useState("");
+  const [orderDate, setOrderDate] = useState(null);
+  const [deliveryDate, setDeliveryDate] = useState(null);
+  const [isOrderDateOpen, setOrderDateOpen] = useState(false);
+  const [isDeliveryDateOpen, setDeliveryDateOpen] = useState(false);
+  const [activity, setActivity] = useState(false);
+  const phoneBook = require("../../assets/phonebook.png");
+  const [modalVisible, setModalVisible] = useState(false);
+  const [contacts, setContacts] = useState([]);
+  const [filteredContacts, setFilteredContacts] = useState([]);
+  const [search, setSearch] = useState('');
 
-  // Function to handle image selection for receipts
+
+  useEffect(() => {
+    if (search) {
+      const filtered = contacts.filter(contact =>
+        contact.displayName.toLowerCase().includes(search.toLowerCase())
+      );
+      setFilteredContacts(filtered);
+    } else {
+      setFilteredContacts(contacts);
+    }
+  }, [search, contacts]);
+
   const handleReceiptImageSelection = () => {
     Alert.alert(
       'Choose an option',
       '',
       [
-        {
-          text: 'Camera',
-          onPress: openReceiptCamera,
-        },
-        {
-          text: 'Gallery',
-          onPress: pickReceiptImage,
-        },
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
+        { text: 'Camera', onPress: openReceiptCamera },
+        { text: 'Gallery', onPress: pickReceiptImage },
+        { text: 'Cancel', style: 'cancel' },
       ],
       { cancelable: true }
     );
@@ -62,24 +78,14 @@ const AddInvoice = () => {
     }).catch(error => console.log('Error opening camera:', error));
   };
 
-  // Function to handle image selection for designs
   const handleDesignImageSelection = () => {
     Alert.alert(
       'Choose an option',
       '',
       [
-        {
-          text: 'Camera',
-          onPress: openDesignCamera,
-        },
-        {
-          text: 'Gallery',
-          onPress: pickDesignImage,
-        },
-        {
-          text: 'Cancel',
-          style: 'cancel',
-        },
+        { text: 'Camera', onPress: openDesignCamera },
+        { text: 'Gallery', onPress: pickDesignImage },
+        { text: 'Cancel', style: 'cancel' },
       ],
       { cancelable: true }
     );
@@ -108,7 +114,7 @@ const AddInvoice = () => {
 
   const handleSubmit = async () => {
     setActivity(true);
-    const apiURL = config.BASE_URL+'insertInvoice.php';
+    const apiURL = config.BASE_URL + 'insertInvoice.php';
     const formData = new FormData();
 
     formData.append('name', name);
@@ -118,6 +124,8 @@ const AddInvoice = () => {
     formData.append('totalAmount', totalAmount);
     formData.append('amountGiven', amountGiven);
     formData.append('invoice_number', invoice_number);
+    formData.append('orderDate', orderDate.toISOString());
+    formData.append('deliveryDate', deliveryDate.toISOString());
 
     receiptImages.forEach((image, index) => {
       formData.append('receiptImages[]', {
@@ -155,18 +163,65 @@ const AddInvoice = () => {
         setReceiptImages([]);
         navigation.navigate('InvoiceHome');
         Alert.alert('Success', 'Invoice submitted successfully');
-
       } else {
         Alert.alert('Error', result.message);
       }
     } catch (error) {
       Alert.alert('Error', 'Failed to submit invoice');
       console.error(error);
-    }
-    finally{
+    } finally {
       setActivity(false);
     }
   };
+
+  const openPhoneBook = async () => {
+    const permission = await Contacts.requestPermission();
+    if (permission === 'authorized') {
+      Contacts.getAll()
+        .then((contactsList) => {
+          const sortedContacts = contactsList.sort((a, b) => 
+            a.displayName.localeCompare(b.displayName)
+          );
+          setContacts(sortedContacts);
+          setFilteredContacts(contactsList);
+          setModalVisible(true);
+        })
+        .catch((error) => {
+          console.warn('Error fetching contacts:', error);
+        });
+    } else {
+      Alert.alert('Permission Denied', 'Cannot access contacts without permission.');
+    }
+  };
+
+  const selectContact = (contact) => {
+    if (contact.phoneNumbers.length > 0) {
+      setMobile(contact.phoneNumbers[0].number.replace(/[^0-9+]/g, ''));
+      setModalVisible(false);
+    } else {
+      Alert.alert('No Phone Number', 'This contact does not have a phone number.');
+    }
+  };
+
+  const renderContactItem = ({ item }) => (
+    item.phoneNumbers.length > 0 ?
+      <TouchableOpacity
+        onPress={() => selectContact(item)}
+        style={{
+          paddingVertical: 10,
+          borderBottomWidth: 1,
+          borderColor: '#ddd',
+          width: '100%',
+        }}
+      >
+        <Text style={{ fontSize: 16, color: "black" }}>{item.displayName}</Text>
+        {item.phoneNumbers.length > 0 && (
+          <Text style={{ color: '#666' }}>{item.phoneNumbers[0].number}</Text>
+        )}
+      </TouchableOpacity>
+      :
+      <></>
+  );
 
   return (
     <View style={{ flex: 1 }}>
@@ -187,15 +242,35 @@ const AddInvoice = () => {
             style={styles.input}
             placeholderTextColor="#999"
           />
-          <TextInput
-            placeholder="Mobile Number"
-            value={mobile}
-            onChangeText={setMobile}
-            keyboardType="number-pad"
-            maxLength={10}
-            style={styles.input}
-            placeholderTextColor="#999"
-          />
+
+          <View style={{
+            height: 50,
+            borderColor: '#d4af37',
+            borderWidth: 1,
+            borderRadius: 8,
+            paddingHorizontal: 10,
+            marginBottom: 15,
+            backgroundColor: '#f0f0f0',
+            color: '#333',
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: 'center'
+          }}>
+            <TextInput
+              placeholder="Mobile Number"
+              value={mobile}
+              onChangeText={setMobile}
+              keyboardType="number-pad"
+              maxLength={15}
+              placeholderTextColor="#999"
+              style={{ width: "85%", color: "black" }}
+            />
+            <TouchableOpacity onPress={openPhoneBook} style={{ width: "15%", justifyContent: "center", alignItems: "center", borderColor: "gray", borderLeftWidth: 1 }}>
+              <Image source={phoneBook} style={{ height: 35, width: 35 }} />
+            </TouchableOpacity>
+          </View>
+
+
           <TextInput
             placeholder="Address"
             value={address}
@@ -229,7 +304,62 @@ const AddInvoice = () => {
             multiline
           />
 
-          {/* Button for choosing between camera and gallery for receipts */}
+
+
+          <TouchableOpacity onPress={() => setOrderDateOpen(true)} style={{ backgroundColor: "#f0f0f0", padding: 10, marginVertical: 10, borderRadius: 7, borderColor: "#d4af37", borderWidth: 1 }}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between" }} >
+              {orderDate ? <Text style={{ color: "black", fontWeight: "600" }}>{orderDate.toLocaleDateString("en-GB", {
+                day: "numeric",
+                month: "short",
+                year: "numeric"
+              })}</Text> : <Text style={{ color: "gray" }}>Eg. 20/12/2024 (Order)</Text>}
+              <Image source={calanderLogo} style={{ height: 25, width: 25 }} />
+            </View>
+          </TouchableOpacity>
+
+          <DatePicker
+            modal
+            title={"Select Order Date"}
+            theme='dark'
+            mode='date'
+            open={isOrderDateOpen}
+            date={orderDate || new Date()}
+            onConfirm={(date) => {
+              setOrderDateOpen(false);
+              setOrderDate(date);
+            }}
+            onCancel={() => {
+              setOrderDateOpen(false);
+            }}
+          />
+
+          <TouchableOpacity onPress={() => setDeliveryDateOpen(true)} style={{ backgroundColor: "#f0f0f0", padding: 10, marginVertical: 10, borderRadius: 7, borderColor: "#d4af37", borderWidth: 1 }}>
+            <View style={{ flexDirection: "row", justifyContent: "space-between" }} >
+              {deliveryDate ? <Text style={{ color: "black", fontWeight: "600" }}>{deliveryDate.toLocaleDateString("en-GB", {
+                day: "numeric",
+                month: "short",
+                year: "numeric"
+              })}</Text> : <Text style={{ color: "gray" }}>Eg. 20/12/2024 (Delivery)</Text>}
+              <Image source={calanderLogo} style={{ height: 25, width: 25 }} />
+            </View>
+          </TouchableOpacity>
+
+          <DatePicker
+            modal
+            title={"Select Delivery Date"}
+            mode='date'
+            theme='dark'
+            open={isDeliveryDateOpen}
+            date={deliveryDate || new Date()}
+            onConfirm={(date) => {
+              setDeliveryDateOpen(false);
+              setDeliveryDate(date);
+            }}
+            onCancel={() => {
+              setDeliveryDateOpen(false);
+            }}
+          />
+
           <TouchableOpacity style={styles.imagePicker} onPress={handleReceiptImageSelection}>
             <Text style={styles.imagePickerText}>Upload Receipt Images</Text>
           </TouchableOpacity>
@@ -245,7 +375,6 @@ const AddInvoice = () => {
             ))}
           </View>
 
-          {/* Button for choosing between camera and gallery for designs */}
           <TouchableOpacity style={styles.imagePicker} onPress={handleDesignImageSelection}>
             <Text style={styles.imagePickerText}>Upload Design Images</Text>
           </TouchableOpacity>
@@ -263,15 +392,73 @@ const AddInvoice = () => {
             <Text style={styles.submitButtonText}>Submit</Text>
           </TouchableOpacity>
         </ScrollView>
-{activity&&
 
-        <View style={styles.overlay}>
+        {activity && (
+          <View style={styles.overlay}>
             <ActivityIndicator size="large" color="#0000ff" />
           </View>
-}
-
-
+        )}
       </View>
+
+      <Modal
+        visible={modalVisible}
+        animationType="slide"
+        transparent={true}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: 'rgba(0, 0, 0, 0.5)',
+            justifyContent: 'center',
+            alignItems: 'center',
+          }}
+        >
+          <View
+            style={{
+              width: '80%',
+              backgroundColor: 'white',
+              borderRadius: 8,
+              padding: 20,
+              maxHeight: "80%"
+
+            }}
+          >
+            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 15 }}>
+              <Text style={{ fontSize: 18, fontWeight: 'bold', color: "gray" }}>Select Contact</Text>
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <Image source={closeLogo} style={{ height: 30, width: 30 }} />
+              </TouchableOpacity>
+
+            </View>
+
+            <TextInput
+              placeholder="Search contacts"
+              value={search}
+              onChangeText={setSearch}
+              placeholderTextColor={"gray"}
+              style={{
+                width: '100%',
+                padding: 10,
+                marginBottom: 15,
+                borderColor: '#ddd',
+                borderWidth: 1,
+                borderRadius: 8,
+                backgroundColor: '#f0f0f0',
+                color: "black"
+              }}
+            />
+
+            <FlatList
+              data={filteredContacts}
+              keyExtractor={(item) => item.recordID}
+              renderItem={renderContactItem}
+            />
+
+
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -296,7 +483,7 @@ const styles = StyleSheet.create({
     padding: 15,
     backgroundColor: '#d4af37',
     borderRadius: 8,
-    marginBottom: 15,
+    marginBottom: 5,
   },
   imagePickerText: {
     color: '#ffffff',
@@ -356,7 +543,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Semi-transparent background
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
   },

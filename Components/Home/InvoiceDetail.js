@@ -82,20 +82,18 @@ const InvoiceDetail = ({ route }) => {
         }
     };
 
-
     const runShare = async () => {
         try {
-            // Format the current date and time
             const currentDate = formatDate(new Date().toISOString());
     
-            // Join all design and receipt image URLs with double line breaks for clearer separation
             const designImageLinks = designImages.map(img => img.uri).join('\n\n');
             const receiptImageLinks = receiptImages.map(img => img.uri).join('\n\n');
     
-            // Construct the complete share message with improved formatting for line breaks
             const shareMessage = `Invoice Details:
             \nName: ${invoice.name}
             \nDate: ${currentDate}
+            \nOrder Date: ${formatOrderAndDeliveryDate(invoice.orderDate)}
+            \nDeliver Date: ${formatOrderAndDeliveryDate(invoice.deliveryDate)}
             \nMobile: ${invoice.mobile}
             \nAddress: ${invoice.address}
             \nTotal Amount: ₹${parseInt(invoice.totalAmount)}
@@ -127,10 +125,14 @@ const InvoiceDetail = ({ route }) => {
             }
         }
     };
-    
-    
-    
 
+    const formatOrderAndDeliveryDate = (dateString) => {
+        const date = new Date(dateString);
+        const optionsDate = { day: '2-digit', month: 'short', year: 'numeric' };
+        const formattedDate = new Intl.DateTimeFormat('en-GB', optionsDate).format(date);
+        return `${formattedDate.replace(/,/, '')}`;
+    };
+    
     return (
         <View style={styles.container}>
             <Header />
@@ -165,7 +167,8 @@ const InvoiceDetail = ({ route }) => {
                     </View>
                 </View>
                 <Text style={[styles.detail, { fontSize: 18, fontWeight: "bold" }]}>Description: <Text style={{ fontSize: 16, fontWeight: "normal" }}>{invoice.description}</Text></Text>
-                <Text style={[styles.detail, { fontSize: 18, fontWeight: "bold" }]}>Date: <Text style={{ fontSize: 16, fontWeight: "normal" }}>{formatDate(invoice.createdAt)}</Text></Text>
+                <Text style={[styles.detail, { fontSize: 18, fontWeight: "bold" }]}>Order Date: <Text style={{ fontSize: 16, fontWeight: "normal" }}>{formatOrderAndDeliveryDate(invoice.orderDate)}</Text></Text>
+                <Text style={[styles.detail, { fontSize: 18, fontWeight: "bold" }]}>Delivery Date: <Text style={{ fontSize: 16, fontWeight: "normal" }}>{formatOrderAndDeliveryDate(invoice.deliveryDate)}</Text></Text>
 
                 <Text style={styles.imageLabel}>Design Images:</Text>
                 {designImages.map((image, index) => (
@@ -185,13 +188,15 @@ const InvoiceDetail = ({ route }) => {
 
                 <TouchableOpacity onPress={runShare} style={{ backgroundColor: "white", justifyContent: "center", padding: 10, borderRadius: 5, flexDirection: "row", alignItems:"center", gap:10 }}><Image source={shareLogo} style={{ height: 30, width: 30 }} /><Text style={{ color:"black", fontSize:18, fontWeight:"700" }}>Share</Text></TouchableOpacity>
 
+                <View style={{ alignItems:"flex-end", padding:10 }}><Text style={{ color:"white", fontSize:12 }} >Created on : {formatDate(invoice.createdAt)}</Text></View>
+
                 <Modal transparent={true} visible={confirmationVisible} animationType="slide" onRequestClose={() => setConfirmationVisible(false)}>
                     <View style={styles.modalContainer}>
                         <View style={styles.modalContent}>
                             <Text style={styles.modalText}>Are you sure you want to delete this image?</Text>
                             <View style={styles.modalButtonContainer}>
                                 <Button title="Cancel" onPress={() => setConfirmationVisible(false)} color="#d4af37" />
-                                <Button title="Okay" onPress={confirmDeleteImage} color="#d4af37" />
+                                <Button title="Yes" onPress={confirmDeleteImage} color="#d4af37" />
                             </View>
                         </View>
                     </View>
@@ -203,7 +208,7 @@ const InvoiceDetail = ({ route }) => {
                             <Text style={styles.modalText}>Are you sure you want to delete this invoice?</Text>
                             <View style={styles.modalButtonContainer}>
                                 <Button title="Cancel" onPress={() => setDeleteConfirmationVisible(false)} color="#d4af37" />
-                                <Button title="Okay" onPress={confirmDeleteRecord} color="#d4af37" />
+                                <Button title="Yes" onPress={confirmDeleteRecord} color="#d4af37" />
                             </View>
                         </View>
                     </View>
@@ -219,13 +224,13 @@ const styles = StyleSheet.create({
         backgroundColor: '#000000',
     },
     scrollContainer: {
-        padding: 20,
+        padding: 10,
     },
     headerContainer: {
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginBottom: 15,
+        marginBottom: 10,
     },
     title: {
         fontSize: 24,
