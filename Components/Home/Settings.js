@@ -6,6 +6,9 @@ import { useFocusEffect } from '@react-navigation/native';
 import ImagePicker from 'react-native-image-crop-picker';
 import Header from './Header';
 import config from '../../config';
+import ToggleSwitch from 'toggle-switch-react-native'
+
+
 
 const Settings = () => {
     const [userimg, setuserImg] = useState(null);
@@ -15,6 +18,8 @@ const Settings = () => {
     const [data, setData] = useState();
     const signalError = require('../../assets/signal.png');
     const loadingGIF = require("../../assets/loader.gif");
+    const [isOn, setIsOn] = useState(null);
+
 
     useFocusEffect(
         React.useCallback(() => {
@@ -23,11 +28,31 @@ const Settings = () => {
             }
             fetchid();
             fetchUserDetail();
+            getStaffStatus();
         }, [])
     );
 
+    const getStaffStatus = async () => {
+        const url = config.BASE_URL + 'getStaffStatus.php';
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(),
+        });
+        const result = await response.json();
+        if (result.code == 200) {
+            setIsOn(true)
+        }
+        else {
+            setIsOn(false)
+        }
+    }
+
+
     const fetchUserDetail = async () => {
-        const url = config.BASE_URL+'adminDetail.php';
+        const url = config.BASE_URL + 'adminDetail.php';
         const response = await fetch(url, {
             method: 'POST',
             headers: {
@@ -40,6 +65,27 @@ const Settings = () => {
             setData(result.data)
             console.log(result)
         }
+    }
+
+    const changeStaffStatus = async (status) => {
+        const url = config.BASE_URL + 'toggleAdminStatus.php';
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "status":status?'yes':'no'
+            }),
+        });
+        const result = await response.json();
+        if (result.status == "success") {
+            console.log(result)
+        }
+        else{
+            console.log(result);
+        }
+
     }
 
     const moveToEditPage = () => {
@@ -121,7 +167,7 @@ const Settings = () => {
             <View style={{ flex: 1 }}>
                 <Header />
                 <ScrollView showsVerticalScrollIndicator={false}>
-                    <View style={{ backgroundColor: "black", justifyContent: "space-evenly", alignItems: "center", gap: 15, paddingVertical: 10 }}>
+                    <View style={{ backgroundColor: "black", justifyContent: "space-evenly", alignItems: "center", gap: 15, paddingVertical: 10, marginBottom:10 }}>
                         <View style={{ alignItems: "flex-end", width: "90%" }}>
                             <TouchableOpacity onPress={moveToEditPage}>
                                 <Image source={edit} style={{ height: 25, width: 25 }} />
@@ -153,6 +199,18 @@ const Settings = () => {
                             <Text style={{ color: "white", fontSize: 20, fontWeight: "500" }}>{data.shop_name ? data.shop_name : "Laxmi Manohar Jewellers"}</Text>
                         </View>
                     </View>
+                    <ToggleSwitch
+                        isOn={isOn}
+                        onColor="green"
+                        offColor="red"
+                        label="Staff Status"
+                        labelStyle={{ color: "black", fontWeight: "900" }}
+                        size="large"
+                        onToggle={newValue => {
+                            setIsOn(newValue);
+                            changeStaffStatus(newValue);
+                        }}
+                    />
                 </ScrollView>
             </View>
         )

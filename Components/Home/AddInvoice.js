@@ -6,7 +6,6 @@ import Header from './Header';
 import { useNavigation } from '@react-navigation/native';
 import config from '../../config';
 import Contacts from 'react-native-contacts';
-import ContactPicker from 'react-native-select-contact';
 
 
 const screenWidth = Dimensions.get('window').width;
@@ -35,7 +34,7 @@ const AddInvoice = () => {
   const [contacts, setContacts] = useState([]);
   const [filteredContacts, setFilteredContacts] = useState([]);
   const [search, setSearch] = useState('');
-
+  const [loadingContacts, setLoadingContacts] = useState(false);
 
   useEffect(() => {
     if (search) {
@@ -168,31 +167,47 @@ const AddInvoice = () => {
       }
     } catch (error) {
       Alert.alert('Error', 'Failed to submit invoice');
-      console.error(error);
     } finally {
       setActivity(false);
     }
   };
 
   const openPhoneBook = async () => {
+    setLoadingContacts(true);
     const permission = await Contacts.requestPermission();
     if (permission === 'authorized') {
       Contacts.getAll()
         .then((contactsList) => {
-          const sortedContacts = contactsList.sort((a, b) => 
-            a.displayName.localeCompare(b.displayName)
+          const filteredContacts = contactsList.filter(
+            (contact) => contact.phoneNumbers && contact.phoneNumbers.length > 0
           );
-          setContacts(sortedContacts);
-          setFilteredContacts(contactsList);
-          setModalVisible(true);
+
+          if (filteredContacts.length === 0) {
+            Alert.alert('No Contacts with Phone Numbers', 'No contacts with phone numbers found.');
+          } else {
+            setModalVisible(true);
+            const sortedContacts = filteredContacts.sort((a, b) => {
+              const nameA = a.displayName || "";
+              const nameB = b.displayName || "";
+              return nameA.localeCompare(nameB);
+            });
+            setContacts(sortedContacts);
+            setFilteredContacts(sortedContacts);
+          }
         })
         .catch((error) => {
           console.warn('Error fetching contacts:', error);
+        })
+        .finally(() => {
+          setLoadingContacts(false); // Stop loading indicator
         });
     } else {
       Alert.alert('Permission Denied', 'Cannot access contacts without permission.');
     }
   };
+
+
+
 
   const selectContact = (contact) => {
     if (contact.phoneNumbers.length > 0) {
@@ -203,8 +218,10 @@ const AddInvoice = () => {
     }
   };
 
-  const renderContactItem = ({ item }) => (
-    item.phoneNumbers.length > 0 ?
+  const renderContactItem = ({ item }) => {
+    const displayName = item.displayName || `${item.givenName || ""} ${item.familyName || ""}`.trim();
+
+    return item.phoneNumbers.length > 0 ? (
       <TouchableOpacity
         onPress={() => selectContact(item)}
         style={{
@@ -214,14 +231,12 @@ const AddInvoice = () => {
           width: '100%',
         }}
       >
-        <Text style={{ fontSize: 16, color: "black" }}>{item.displayName}</Text>
-        {item.phoneNumbers.length > 0 && (
-          <Text style={{ color: '#666' }}>{item.phoneNumbers[0].number}</Text>
-        )}
+        <Text style={{ fontSize: 16, color: "black" }}>{displayName || "Unnamed Contact"}</Text>
+        <Text style={{ color: '#666' }}>{item.phoneNumbers[0]?.number || "No Number"}</Text>
       </TouchableOpacity>
-      :
-      <></>
-  );
+    ) : null;
+  };
+
 
   return (
     <View style={{ flex: 1 }}>
@@ -449,16 +464,28 @@ const AddInvoice = () => {
               }}
             />
 
+
             <FlatList
               data={filteredContacts}
               keyExtractor={(item) => item.recordID}
               renderItem={renderContactItem}
             />
 
-
           </View>
         </View>
       </Modal>
+
+      {
+        loadingContacts ? (<View style={styles.overlay}>
+          <ActivityIndicator size="large" color="#0000ff" />
+        </View>) : <></>
+      }
+
+
+
+
+
+
     </View>
   );
 };
@@ -546,6 +573,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+    zIndex: 1000
   },
 });
 

@@ -90,23 +90,7 @@ const InvoiceHome = () => {
                     onPress={() => navigation.navigate("ListAllOrder")}
                 >
                     <Image source={nameLogo} style={styles.buttonImage} />
-                    <Text style={styles.buttonText}>List All Orders</Text>
-                </TouchableOpacity>
-
-
-                <TouchableOpacity
-                    style={styles.touchable}
-                    onPress={() => {/* Add your navigation here */ }}
-                >
-                    <Image source={dateLogo} style={styles.buttonImage} />
-                    <Text style={styles.buttonText}>Search By Date</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    style={styles.touchable}
-                    onPress={() => {/* Add your navigation here */ }}
-                >
-                    <Image source={mobileLogo} style={styles.buttonImage} />
-                    <Text style={styles.buttonText}>Search By Mobile</Text>
+                    <Text style={styles.buttonText}>List All Orders (Filters)</Text>
                 </TouchableOpacity>
 
             </View>
@@ -137,7 +121,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-evenly',
     },
     touchable: {
-        width: "22%",
+        width: "42%",
         backgroundColor: "white",
         padding: 10,
         borderRadius: 5,
@@ -147,14 +131,18 @@ const styles = StyleSheet.create({
         shadowRadius: 10,
         elevation: 5,
         alignItems: "center",
+        height:130,
+        justifyContent:"center"
     },
     buttonImage: {
-        height: 40,
-        width: 40,
+        height: 60,
+        width: 60,
     },
     buttonText: {
         textAlign: "center",
         color: "black",
+        fontSize:18,
+        fontWeight:"600"
     },
     titleContainer: {
         margin: 10,

@@ -128,10 +128,10 @@ const handleConfirm = async() => {
               <Text style={{ marginLeft: 10, fontFamily: 'Inter-Bold', fontSize: 15, color: pageName == "Settings" ? "white" : "gray" }}>Settings</Text>
             </View>
           </TouchableOpacity>
-          <TouchableOpacity onPress={handleOpenModal} style={{ marginLeft: 10, backgroundColor: pageName == "Settings" ? "#d4af37" : "transparent", borderRadius: 5, marginRight: 10 }}>
+          <TouchableOpacity onPress={handleOpenModal} style={{ marginLeft: 10, borderRadius: 5, marginRight: 10 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12, gap: 10 }}>
-              <Image source={pageName == "Settings" ? logoutLogo : logoutLogo} style={{ height: 18, width: 18 }} />
-              <Text style={{ marginLeft: 10, fontFamily: 'Inter-Bold', fontSize: 15, color: pageName == "Settings" ? "white" : "gray" }}>Logout</Text>
+              <Image source={ logoutLogo} style={{ height: 18, width: 18 }} />
+              <Text style={{ marginLeft: 10, fontFamily: 'Inter-Bold', fontSize: 15, color: "gray" }}>Logout</Text>
             </View>
           </TouchableOpacity>
 
