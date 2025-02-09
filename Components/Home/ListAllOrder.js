@@ -1,147 +1,260 @@
-import { View, Text, Image, TouchableOpacity, FlatList, StyleSheet, TextInput, Modal, Button } from 'react-native';
-import React, { useState, useCallback } from 'react';
+import { View, Text, Image, TouchableOpacity, FlatList, StyleSheet, TextInput, Modal, Button, ActivityIndicator } from 'react-native';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import Header from './Header';
 import { useFocusEffect } from '@react-navigation/native';
 import config from '../../config';
 import { Picker } from '@react-native-picker/picker';
 import { useNavigation } from '@react-navigation/native';
+import DatePicker from 'react-native-date-picker';
+import debounce from 'lodash.debounce';
 
 const ListAllOrder = () => {
-
     const navigation = useNavigation();
     const [data, setData] = useState([]);
     const [filteredData, setFilteredData] = useState([]);
     const [filterOption, setFilterOption] = useState('name');
     const [filterText, setFilterText] = useState('');
+    const [filterDate, setFilterDate] = useState(null);
+    const [showDatePicker, setShowDatePicker] = useState(false);
+    const [statusFilter, setStatusFilter] = useState('all');
+    const [activityStatus, setActivityStatus] = useState(false);
+    const [listRefState, setListRefState] = useState("")
+
     const pricelist = require('../../assets/price_list.png');
 
-    const fetchAllOrder = async () => {
+    const fetchAllOrder = useCallback(async () => {
+        setActivityStatus(true);
         const url = `${config.BASE_URL}listAllOrder.php`;
         const response = await fetch(url, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(),
         });
         const result = await response.json();
-        if (result.status == "success") {
+        if (result.status === 'success') {
             setData(result.data);
-            setFilteredData(result.data);
+            setFilteredData(result.data); // Set initial full data
         }
-    };
+        setActivityStatus(false);
+    }, []);
 
-    useFocusEffect(
-        useCallback(() => {
-            fetchAllOrder();
-        }, [])
-    );
+    useEffect(() => {
+        fetchAllOrder();
+    }, [fetchAllOrder]);
 
-    const filterData = (text) => {
-        setFilterText(text);
-        if (text === '') {
+    const filterData = (text = filterText, date = filterDate, status = statusFilter) => {
+        let filtered = data;
+    
+        if (filterOption !== 'status' && filterOption !== 'delivery_date') {
             setFilteredData(data);
-        } else {
-            const filtered = data.filter((item) => {
-                const valueToFilter = item[filterOption].toString().toLowerCase();
+        }
+    
+        if (text) {
+            filtered = filtered.filter((item) => {
+                const valueToFilter = (item[filterOption] || '').toString().toLowerCase();
                 return valueToFilter.includes(text.toLowerCase());
             });
-            setFilteredData(filtered);
         }
+    
+        if (date) {
+            filtered = filtered.filter((item) => {
+                const itemDate = new Date(item.deliveryDate).toISOString().split('T')[0];
+                const filterFormattedDate = date.toISOString().split('T')[0];
+                return itemDate === filterFormattedDate;
+            });
+        }
+    
+        if (status && status !== 'all') {
+            filtered = filtered.filter((item) => item.status.toLowerCase() === status.toLowerCase());
+        }
+        setFilteredData(filtered);
+    };
+    
+
+    const debouncedFilterData = useCallback(
+        debounce((text, date, status) => {
+            filterData(text, date, status);
+        }, 300),
+        [filterData]
+    );
+
+    const handleTextChange = (text) => {
+        setFilterText(text);
+        debouncedFilterData(text, filterDate, statusFilter);
     };
 
-    const TriangleCorner = ({ text }) => {
-        return (
-            <View style={styles.ribbonContainer}>
-                <View style={styles.triangleCorner} />
-                <Text style={styles.ribbonText}>{text}</Text>
-            </View>
-        );
-    };
+    const TriangleCorner = ({ text }) => (
+        <View style={styles.ribbonContainer}>
+            <View style={styles.triangleCorner} />
+            <Text style={styles.ribbonText}>{text}</Text>
+        </View>
+    );
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity onPress={() => navigation.navigate('InvoiceDetail', { invoice: item })} style={{ margin: 10 }}>
-            <View style={styles.card}>
+        <TouchableOpacity 
+            onPress={() => {
+                setListRefState(item.id); 
+                navigation.navigate('InvoiceDetail', { invoice: item });
+            }} 
+            style={{ margin: 10 }}
+        >
+            <View style={[styles.card, { backgroundColor: listRefState === item.id ? "#b8f5e9" : "#ffffff" }]}>
                 <TriangleCorner text={item.invoice_number} />
                 <Image source={pricelist} style={styles.image} />
-                <View style={{ flexShrink: 1, width:"100%"}}>
-                    <Text style={styles.nameText}>
-                        Name: <Text style={styles.boldText}>{item.name}</Text>
-                    </Text>
+                <View style={{ flexShrink: 1 }}>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", width: "100%" }}>
+                        <Text style={styles.nameText}>
+                            Name: <Text style={styles.boldText}>{item.name}</Text>
+                        </Text>
+                        <View style={{
+                            height: 20, width: 20, borderRadius: 20,
+                            backgroundColor: item.metal === "Gold" ? "gold" :
+                                            item.metal === "Silver" ? "#C0C0C0" :
+                                            item.metal === "Mix" ? "red" : "blue",
+                            justifyContent: "center", alignItems: "center"
+                        }}>
+                            <Text style={{ color: "white", fontWeight: "bold" }}>
+                                {item.metal === "Gold" ? "G" :
+                                 item.metal === "Silver" ? "S" :
+                                 item.metal === "Mix" ? "M" : "U"}
+                            </Text>
+                        </View>
+                    </View>
                     <Text style={styles.amountText}>
                         Billing Amount: <Text style={styles.boldAmountText}>₹{item.totalAmount}</Text>
                     </Text>
                     <Text style={styles.amountText}>
                         Paid Amount: <Text style={styles.boldAmountText}>₹{item.amountGiven}</Text>
                     </Text>
-                    <View style={{ flexDirection:"row", justifyContent:"space-between" }}>
-                    <Text style={styles.mobileText}>
-                        Mobile: <Text style={styles.boldMobileText}>{item.mobile}</Text>
-                    </Text>
-
-                    <Text style={styles.reciptStatus}>{item.status}</Text>
-
+                    <View style={{ flexDirection: "row", gap: 10 }}>
+                        <Text style={styles.mobileText}>Status: </Text>
+                        <Text style={{
+                            padding: 5,
+                            backgroundColor: item.status === "Completed" ? '#32CD32' :
+                                             item.status === "Pending" ? "#FFA500" :
+                                             item.status === "Ongoing" ? '#1E90FF' : '#FFD700',
+                            borderRadius: 5, color: "white", fontWeight: "700", fontSize: 9
+                        }}>
+                            {item.status}
+                        </Text>
                     </View>
-                    
                 </View>
             </View>
         </TouchableOpacity>
     );
 
+
+
+
     return (
         <View style={{ flex: 1 }}>
             <Header />
-
             <View style={{ paddingHorizontal: 10, marginVertical: 10 }}>
-                <Text style={{ color: "gray", fontSize: 16, fontWeight: "700" }}>Select filter:</Text>
+                <Text style={{ color: 'gray', fontSize: 16, fontWeight: '700' }}>Select filter:</Text>
                 <View style={styles.picker}>
                     <Picker
                         selectedValue={filterOption}
-                        onValueChange={(itemValue) => setFilterOption(itemValue)}
-                        style={{ color:"black" }}
+                        onValueChange={(itemValue) => {
+                            setFilterOption(itemValue);
+                            setFilteredData(data);
+                            setStatusFilter('all');
+                            // filterData(filterText, filterDate, statusFilter);
+                        }}
+                        style={{ color: 'black' }}
                     >
                         <Picker.Item label="Name" value="name" />
-                        <Picker.Item label="Mobile" value="mobile" />
+                        <Picker.Item label="Address" value="address" />
                         <Picker.Item label="Order Number" value="invoice_number" />
+                        <Picker.Item label="Delivery Date" value="delivery_date" />
+                        <Picker.Item label="Status" value="status" />
                     </Picker>
                 </View>
 
-                <TextInput
-                    style={styles.input}
-                    placeholder={filterOption!='invoice_number'?`Enter ${filterOption}`:`Enter order number`}
-                    value={filterText}
-                    onChangeText={filterData}
-                    placeholderTextColor={"gray"}
-                />
+                {filterOption === 'delivery_date' ? (
+                    <View style={{ marginTop: 10 }}>
+                        <Button title="Select Date" onPress={() => setShowDatePicker(true)} />
+                        {filterDate && (
+                            <Text style={{ marginTop: 10, color: 'gray' }}>
+                                Selected Date: {filterDate.toDateString()}
+                            </Text>
+                        )}
+                        <DatePicker
+                            modal
+                            open={showDatePicker}
+                            date={filterDate || new Date()}
+                            mode="date"
+                            onConfirm={(date) => {
+                                setShowDatePicker(false);
+                                setFilterDate(date);
+                                filterData(filterText, date, statusFilter);
+                            }}
+                            onCancel={() => setShowDatePicker(false)}
+                        />
+                    </View>
+                ) : filterOption === 'status' ? (
+                    <View style={styles.picker}>
+                        <Picker
+                            selectedValue={statusFilter}
+                            onValueChange={(itemValue) => {
+                                setStatusFilter(itemValue);
+                                filterData(filterText, filterDate, itemValue);
+                            }}
+                            style={{ color: 'black' }}
+                        >
+                            <Picker.Item label="All" value="all" />
+                            <Picker.Item label="Pending" value="pending" />
+                            <Picker.Item label="Ongoing" value="ongoing" />
+                            <Picker.Item label="Completed" value="completed" />
+                            <Picker.Item label="Delivered" value="delivered" />
+                        </Picker>
+                    </View>
+                ) : (
+                    <TextInput
+                        style={styles.input}
+                        placeholder={
+                            filterOption !== 'invoice_number' ? `Enter ${filterOption}` : `Enter order number`
+                        }
+                        value={filterText}
+                        onChangeText={handleTextChange}
+                        placeholderTextColor={'gray'}
+                    />
+                )}
             </View>
             <FlatList
                 data={filteredData}
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id.toString()}
             />
+
+            {activityStatus && (
+                <View style={styles.activityOverlay}>
+                    <ActivityIndicator size="large" color="#ffffff" />
+                </View>
+            )}
         </View>
     );
 };
 
+
+
 const styles = StyleSheet.create({
     picker: {
-        backgroundColor: '#f9f9f9', // Light neutral background for picker
+        backgroundColor: '#f9f9f9',
         borderRadius: 8,
-        borderColor: '#ddd', // Light gray border for a soft look
+        borderColor: '#ddd',
         borderWidth: 1,
         marginTop: 5,
     },
     input: {
         height: 40,
-        borderColor: '#ddd', // Matching border color with picker
+        borderColor: '#ddd',
         borderWidth: 1,
         borderRadius: 8,
         paddingHorizontal: 10,
         marginTop: 10,
-        backgroundColor: '#ffffff', // White background for a clean look
-        color: "#333", // Dark text color for good contrast
+        backgroundColor: '#ffffff',
+        color: "#333",
     },
-    // Rest of your styles
     modalOverlay: {
         flex: 1,
         backgroundColor: 'rgba(0, 0, 0, 0.6)',
@@ -167,7 +280,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
     },
     card: {
-        backgroundColor: "#ffffff", // White background for card
+        backgroundColor: "#ffffff",
         marginVertical: 5,
         flexDirection: "row",
         padding: 12,
@@ -183,13 +296,13 @@ const styles = StyleSheet.create({
         marginRight: 12,
     },
     nameText: {
-        color: "#333", // Darker shade for readability
+        color: "#333",
         fontSize: 14,
         fontWeight: "600",
         marginBottom: 4,
     },
     boldText: {
-        color: "#555", // Slightly lighter than main text for emphasis
+        color: "#555",
         fontSize: 16,
         fontWeight: "700",
     },
@@ -209,7 +322,7 @@ const styles = StyleSheet.create({
         fontSize: 14,
         fontWeight: "600",
         marginBottom: 4,
-       
+
     },
     boldMobileText: {
         color: "#555",
@@ -220,10 +333,10 @@ const styles = StyleSheet.create({
         color: "#555",
         fontSize: 12,
         fontWeight: "700",
-        borderWidth:1,
-        borderRadius:5,
-        borderColor:"black",
-        padding:5
+        borderWidth: 1,
+        borderRadius: 5,
+        borderColor: "black",
+        padding: 5
     },
     ribbonContainer: {
         position: 'absolute',
@@ -251,6 +364,18 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
     },
+    activityOverlay: {
+        position: 'absolute',
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.5)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 10,
+    },
+
 });
 
 

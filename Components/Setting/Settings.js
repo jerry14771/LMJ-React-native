@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useFocusEffect } from '@react-navigation/native';
 import ImagePicker from 'react-native-image-crop-picker';
-import Header from './Header';
+import Header from '../Home/Header';
 import config from '../../config';
 import ToggleSwitch from 'toggle-switch-react-native'
 
@@ -63,7 +63,6 @@ const Settings = () => {
         const result = await response.json();
         if (result.status == "success") {
             setData(result.data)
-            console.log(result)
         }
     }
 
@@ -80,10 +79,8 @@ const Settings = () => {
         });
         const result = await response.json();
         if (result.status == "success") {
-            console.log(result)
         }
         else{
-            console.log(result);
         }
 
     }
@@ -151,7 +148,6 @@ const Settings = () => {
                 fetchUserDetail();
             }
             else {
-                console.log(result)
             }
         }
 
@@ -199,18 +195,22 @@ const Settings = () => {
                             <Text style={{ color: "white", fontSize: 20, fontWeight: "500" }}>{data.shop_name ? data.shop_name : "Laxmi Manohar Jewellers"}</Text>
                         </View>
                     </View>
+                    {
+                        isOn!=null?
+
                     <ToggleSwitch
                         isOn={isOn}
                         onColor="green"
                         offColor="red"
                         label="Staff Status"
                         labelStyle={{ color: "black", fontWeight: "900" }}
-                        size="large"
+                        size="medium"
                         onToggle={newValue => {
                             setIsOn(newValue);
                             changeStaffStatus(newValue);
                         }}
-                    />
+                    />:""
+                    }
                 </ScrollView>
             </View>
         )

@@ -7,24 +7,16 @@ import { useNavigation } from '@react-navigation/native';
 import Share from 'react-native-share';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';
 import Toast from 'react-native-toast-message';
-import Animated, {
-    useSharedValue,
-    useAnimatedStyle,
-    withSpring,
-    runOnJS,
-    interpolateColor,
-} from 'react-native-reanimated';
+import Animated, {useSharedValue,useAnimatedStyle,withSpring,runOnJS,interpolateColor} from 'react-native-reanimated';
 import { Dimensions } from 'react-native';
+import ToggleSwitch from 'toggle-switch-react-native'
+
 
 const SCREEN_WIDTH = Dimensions.get('window').width;
 const SWIPE_THRESHOLD = SCREEN_WIDTH * 0.3;
 
 const statuses = ['Pending', 'Ongoing', 'Completed', 'Delivered'];
-const statusColors = {
-    Pending: '#FFA500',
-    Ongoing: '#1E90FF',
-    Completed: '#32CD32',
-    Delivered: '#FFD700',
+const statusColors = {Pending: '#FFA500',Ongoing: '#1E90FF',Completed: '#32CD32',Delivered: '#FFD700',
 };
 
 const InvoiceDetail = ({ route }) => {
@@ -44,6 +36,8 @@ const InvoiceDetail = ({ route }) => {
     const editLogo = require("../../assets/pen.png");
     const [currentStatusIndex, setCurrentStatusIndex] = useState(invoice.status=="Pending"?0:invoice.status=="Ongoing"?1:invoice.status=="Completed"?2:3);
     const translateX = useSharedValue(0);
+    const [isOn, setIsOn] = useState(invoice.staffAccess=="yes"?true:false);
+
 
     const handleImagePress = (index) => {
         setSelectedImageIndex(index);
@@ -233,13 +227,45 @@ const InvoiceDetail = ({ route }) => {
         };
     });
 
+    const changeStaffStatusRecipt = async (status) => {
+        const url = config.BASE_URL + 'toggleReciptStatus.php';
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                "status":status ? 'yes' : 'no',
+                "id":invoiceID
+            }),
+        });
+        const result = await response.json();
+        if (result.status == "success") {
+        }
+        else{
+        }
+
+    }
+
     return (
         <GestureHandlerRootView style={{ flex: 1 }}>
             <View style={styles.container}>
-                <Header />
+                <Header id={invoice.invoice_number} />
                 <ScrollView contentContainerStyle={styles.scrollContainer}>
                     <View style={styles.headerContainer}>
-                        <Text style={styles.title}>{invoice.name}</Text>
+                            <View><Text style={styles.title}>{invoice.name}</Text></View>
+                        <ToggleSwitch
+                        isOn={isOn}
+                        onColor="green"
+                        offColor="red"
+                        label="Staff Status"
+                        labelStyle={{ color: "black", fontWeight: "900" }}
+                        size="medium"
+                        onToggle={newValue => {
+                            setIsOn(newValue);
+                            changeStaffStatusRecipt(newValue);
+                        }}
+                    />
 
                     </View>
                     <View style={{ flexDirection: "row", alignItems: "center", paddingVertical: 5 }}>
@@ -263,6 +289,14 @@ const InvoiceDetail = ({ route }) => {
                         <View style={styles.amountRow}>
                             <Text style={styles.amountText}>Remaining Amount:</Text>
                             <Text style={styles.remainingValue}>₹ {parseInt(invoice.totalAmount) - parseInt(invoice.amountGiven)}</Text>
+                        </View>
+                        <View style={styles.amountRow}>
+                            <Text style={styles.amountText}>Gold</Text>
+                            <Text style={styles.goldAndSilverText}>{parseFloat(invoice.gold_grams).toFixed(3)} gms</Text>
+                        </View>
+                        <View style={styles.amountRow}>
+                            <Text style={styles.amountText}>Silver</Text>
+                            <Text style={styles.goldAndSilverText}>{(invoice.silver_grams==0) || (invoice.silver_grams=="0") ?"N/A":invoice.silver_grams + "gms"} </Text>
                         </View>
                     </View>
                     <Text style={[styles.detail, { fontSize: 18, fontWeight: "bold" }]}>Description: <Text style={{ fontSize: 16, fontWeight: "normal" }}>{invoice.description}</Text></Text>
@@ -398,6 +432,10 @@ const styles = StyleSheet.create({
     },
     remainingValue: {
         color: '#ff1f40',
+        fontWeight: 'bold',
+    },
+    goldAndSilverText: {
+        color: 'white',
         fontWeight: 'bold',
     },
     imageLabel: {

@@ -12,6 +12,8 @@ const CustomDrawer = (props) => {
 
   const reciptActive = require("../../assets/invoice_sidebar_active.png");
   const reciptDeactive = require("../../assets/invoice_sidebar_deactive.png");
+  const filterActive = require("../../assets/filterWhite.png");
+  const filterDeactive = require("../../assets/filter.png");
   const udhaarActive = require("../../assets/cashback_active.png");
   const udhaarDeactive = require("../../assets/cashback_deactive.png");
   const logoutLogo = require("../../assets/switch.png")
@@ -80,14 +82,9 @@ const handleConfirm = async() => {
     });
 };
 
-
-
-
-
-
   if (!data) {
     return (
-      <Text>Hello</Text>
+      <Text>Seems No Internet</Text>
     )
   }
   else {
@@ -112,6 +109,16 @@ const handleConfirm = async() => {
               <Text style={{ marginLeft: 10, fontFamily: 'Inter-Bold', fontSize: 15, color: pageName == "InvoiceNav" ? "white" : "gray" }}>Recipt</Text>
             </View>
           </TouchableOpacity>
+
+
+          <TouchableOpacity onPress={() => { navigation.navigate("StatusHome") }} style={{ marginLeft: 10, backgroundColor: pageName == "StatusHome" ? "#d4af37" : "transparent", borderRadius: 5, marginRight: 10 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12, gap: 10 }}>
+              <Image source={pageName == "StatusHome" ? filterActive : filterDeactive} style={{ height: 18, width: 18 }} />
+              <Text style={{ marginLeft: 10, fontFamily: 'Inter-Bold', fontSize: 15, color: pageName == "StatusHome" ? "white" : "gray" }}>Filter</Text>
+            </View>
+          </TouchableOpacity>
+
+
 
           <TouchableOpacity onPress={() => { navigation.navigate("Udhari") }} style={{ marginLeft: 10, backgroundColor: pageName == "Udhari" ? "#d4af37" : "transparent", borderRadius: 5, marginRight: 10 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12, gap: 10 }}>

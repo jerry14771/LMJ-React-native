@@ -1,11 +1,10 @@
 import { View, Text, Image, TouchableOpacity, StatusBar, FlatList, StyleSheet } from 'react-native';
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
 import config from '../../config';
 import Header from './Header';
 
-// TriangleCorner Component
 const TriangleCorner = ({ text }) => {
     return (
         <View style={styles.ribbonContainer}>
@@ -18,15 +17,29 @@ const TriangleCorner = ({ text }) => {
 const InvoiceHome = () => {
     const navigation = useNavigation();
     const invoice = require('../../assets/invoice.png');
-    const dateLogo = require('../../assets/timetable.png');
-    const mobileLogo = require('../../assets/mobile_app.png');
     const nameLogo = require('../../assets/driving_license.png');
     const pricelist = require('../../assets/price_list.png');
-
+    const valueRef = useRef('');
     const [data, setData] = useState(null);
 
     const fetchTodaysOrder = async () => {
+        valueRef.current = "order";
         const url = `${config.BASE_URL}fetchTodaysInvoice.php`;
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(),
+        });
+        const result = await response.json();
+        if (result.status == "success") {
+            setData(result.data);
+        }
+    };
+    const fetchTodaysDelivery = async () => {
+        valueRef.current = "delivery";
+        const url = `${config.BASE_URL}fetchTodaysDelivery.php`;
         const response = await fetch(url, {
             method: 'POST',
             headers: {
@@ -42,7 +55,12 @@ const InvoiceHome = () => {
 
     useFocusEffect(
         useCallback(() => {
-            fetchTodaysOrder();
+            if(valueRef.current=="delivery"){
+                fetchTodaysDelivery();
+            }
+            else{
+                fetchTodaysOrder();
+            }
         }, [])
     );
 
@@ -54,18 +72,28 @@ const InvoiceHome = () => {
 
                 <Image source={pricelist} style={styles.image} />
                 <View style={{ flexShrink: 1 }}>
-                    <Text style={styles.nameText}>
-                        Name: <Text style={styles.boldText}>{item.name}</Text>
-                    </Text>
+                    <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", width: "100%" }}>
+                        <Text style={styles.nameText}>
+                            Name: <Text style={styles.boldText}>{item.name}</Text>
+                        </Text>
+                        <View
+                            style={{ height: 20, width: 20, borderRadius: 20, backgroundColor: item.metal == "Gold" ? "gold" : item.metal == "Silver" ? "#C0C0C0" : item.metal == "Mix" ? "red" : "blue", justifyContent: "center", alignItems: "center" }}>
+                            <Text style={{ color: "white", fontWeight: "bold" }}>
+                                {item.metal == "Gold" ? "G" : item.metal == "Silver" ? "S" : item.metal == "Mix" ? "M" : "U"}
+                            </Text>
+                        </View>
+
+                    </View>
                     <Text style={styles.amountText}>
                         Billing Amount: <Text style={styles.boldAmountText}>₹{item.totalAmount}</Text>
                     </Text>
                     <Text style={styles.amountText}>
                         Paid Amount: <Text style={styles.boldAmountText}>₹{item.amountGiven}</Text>
                     </Text>
-                    <Text style={styles.mobileText}>
-                        Mobile: <Text style={styles.boldMobileText}>{item.mobile}</Text>
-                    </Text>
+                    <View style={{ flexDirection: "row", gap: 10 }}>
+                        <Text style={styles.mobileText}>Status: </Text>
+                        <Text style={{ padding: 5, backgroundColor: item.status == "Completed" ? '#32CD32' : item.status == "Pending" ? "#FFA500" : item.status == "Ongoing" ? '#1E90FF' : '#FFD700', borderRadius: 5, color: "white", fontWeight: "700", fontSize: 9 }}>{item.status}</Text>
+                    </View>
                 </View>
             </View>
         </TouchableOpacity>
@@ -95,8 +123,17 @@ const InvoiceHome = () => {
 
             </View>
 
-            <View style={styles.titleContainer}>
-                <Text style={styles.titleText}>Today's Orders</Text>
+        
+        <View style={{ flexDirection:"row", width:"100%", justifyContent: 'space-evenly', }}>
+
+                <TouchableOpacity style={valueRef.current!="delivery"?styles.titleContainerActive:styles.titleContainer}  onPress={fetchTodaysOrder} >
+                    <Text style={valueRef.current!="delivery"?styles.titleTextActive:styles.titleText}>Today's Orders</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={valueRef.current=="delivery"?styles.titleContainerActive:styles.titleContainer} onPress={fetchTodaysDelivery}>
+                    <Text style={valueRef.current=="delivery"?styles.titleTextActive:styles.titleText}>Today's Delivery</Text>
+                </TouchableOpacity>
+
             </View>
 
             <FlatList
@@ -104,6 +141,8 @@ const InvoiceHome = () => {
                 renderItem={renderItem}
                 keyExtractor={(item) => item.id.toString()}
             />
+
+            {/* <View style={{ backgroundColor:"#00ffee", justifyContent:"center", height:30, alignItems:"center", display:"flex"}}><Text style={{ color:"black" }}>Legend Here</Text></View> */}
         </View>
     );
 };
@@ -117,13 +156,12 @@ const styles = StyleSheet.create({
         flexDirection: "row",
         width: "100%",
         alignSelf: "center",
-        marginTop: 20,
+        marginTop: 5,
         justifyContent: 'space-evenly',
     },
     touchable: {
-        width: "42%",
+        width: "45%",
         backgroundColor: "white",
-        padding: 10,
         borderRadius: 5,
         shadowColor: "red",
         shadowOffset: { width: 0, height: 0 },
@@ -131,30 +169,46 @@ const styles = StyleSheet.create({
         shadowRadius: 10,
         elevation: 5,
         alignItems: "center",
-        height:130,
-        justifyContent:"center"
+        height: 110,
+        justifyContent: "center"
     },
     buttonImage: {
-        height: 60,
-        width: 60,
+        height: 50,
+        width: 50,
     },
     buttonText: {
         textAlign: "center",
         color: "black",
-        fontSize:18,
-        fontWeight:"600"
+        fontSize: 16,
+        fontWeight: "600"
     },
     titleContainer: {
-        margin: 10,
+        marginVertical: 10,
         alignItems: "center",
         justifyContent: "center",
         backgroundColor: "white",
         borderRadius: 5,
         padding: 5,
+        width:"45%"
+    },
+    titleContainerActive: {
+        marginVertical: 10,
+        alignItems: "center",
+        justifyContent: "center",
+        backgroundColor: "white",
+        borderRadius: 5,
+        padding: 5,
+        width:"45%",
+        backgroundColor: "#044780"
     },
     titleText: {
-        fontSize: 18,
+        fontSize: 16,
         color: "black",
+        fontWeight: "600",
+    },
+    titleTextActive: {
+        fontSize: 16,
+        color: "white",
         fontWeight: "600",
     },
     card: {
@@ -179,18 +233,18 @@ const styles = StyleSheet.create({
     },
     nameText: {
         color: "#333",
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: "600",
-        marginBottom: 4,
+        // marginBottom: 4,
     },
     boldText: {
         color: "#555",
-        fontSize: 16,
+        fontSize: 15,
         fontWeight: "700",
     },
     amountText: {
         color: "#333",
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: "600",
         marginBottom: 4,
     },
@@ -201,9 +255,9 @@ const styles = StyleSheet.create({
     },
     mobileText: {
         color: "#333",
-        fontSize: 14,
+        fontSize: 13,
         fontWeight: "600",
-        marginBottom: 4,
+        // marginBottom: 4,
     },
     boldMobileText: {
         color: "#555",
@@ -236,6 +290,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         textAlign: 'center',
     },
+
 });
 
 export default InvoiceHome;

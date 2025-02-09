@@ -7,7 +7,6 @@ import { useNavigation } from '@react-navigation/native';
 import config from '../../config';
 import Contacts from 'react-native-contacts';
 
-
 const screenWidth = Dimensions.get('window').width;
 const imageSize = (screenWidth - 75) / 3;
 
@@ -35,6 +34,10 @@ const AddInvoice = () => {
   const [filteredContacts, setFilteredContacts] = useState([]);
   const [search, setSearch] = useState('');
   const [loadingContacts, setLoadingContacts] = useState(false);
+  const [metal, setMetal] = useState("");
+  const [goldGrams, setGoldGrams] = useState("");
+  const [silverGrams, setSilverGrams] = useState("");
+
 
   useEffect(() => {
     if (search) {
@@ -119,12 +122,15 @@ const AddInvoice = () => {
     formData.append('name', name);
     formData.append('mobile', mobile);
     formData.append('address', address);
+    formData.append('metal', metal);
+    formData.append('silvergrams', silverGrams);
+    formData.append('goldgrams', goldGrams);
     formData.append('description', description);
     formData.append('totalAmount', totalAmount);
     formData.append('amountGiven', amountGiven);
     formData.append('invoice_number', invoice_number);
-    formData.append('orderDate', orderDate.toISOString());
-    formData.append('deliveryDate', deliveryDate.toISOString());
+    formData.append('orderDate', orderDate ? orderDate.toISOString() : null);
+    formData.append('deliveryDate', deliveryDate ? deliveryDate.toISOString() : null);
 
     receiptImages.forEach((image, index) => {
       formData.append('receiptImages[]', {
@@ -157,6 +163,9 @@ const AddInvoice = () => {
         setMobile("");
         setDescription("");
         setAmountGiven("");
+        setMetal("");
+        setSilverGrams("");
+        setGoldGrams("");
         setTotalAmount("");
         setDesignImages([]);
         setReceiptImages([]);
@@ -206,9 +215,6 @@ const AddInvoice = () => {
     }
   };
 
-
-
-
   const selectContact = (contact) => {
     if (contact.phoneNumbers.length > 0) {
       setMobile(contact.phoneNumbers[0].number.replace(/[^0-9+]/g, ''));
@@ -237,12 +243,22 @@ const AddInvoice = () => {
     ) : null;
   };
 
+  const options = [
+    { label: "Gold", image: require("../../assets/gold_bar_shie.png") },
+    { label: "Silver", image: require("../../assets/silver_compressed.png") },
+    { label: "Mix", image: require("../../assets/mix.png") },
+  ];
+
+
+
 
   return (
     <View style={{ flex: 1 }}>
       <Header />
       <View style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.container}>
+
+
           <TextInput
             placeholder="Invoice Number"
             value={invoice_number}
@@ -286,6 +302,8 @@ const AddInvoice = () => {
           </View>
 
 
+
+
           <TextInput
             placeholder="Address"
             value={address}
@@ -294,6 +312,8 @@ const AddInvoice = () => {
             placeholderTextColor="#999"
             multiline
           />
+
+
           <TextInput
             placeholder="Total Amount"
             value={totalAmount}
@@ -375,6 +395,108 @@ const AddInvoice = () => {
             }}
           />
 
+
+
+          <View style={{ paddingBottom: 10, flexDirection: "row", justifyContent: "space-between" }}>
+            {options.map((option) => (
+              <TouchableOpacity
+                key={option.label}
+                onPress={() => setMetal(option.label)}
+                style={{ flexDirection: "row", alignItems: "center", marginVertical: 5 }}
+              >
+                <View
+                  style={{
+                    height: 20,
+                    width: 20,
+                    borderRadius: 10,
+                    borderWidth: 2,
+                    borderColor: "#000",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    marginRight: 5,
+                  }}
+                >
+                  {metal === option.label && (
+                    <View
+                      style={{
+                        height: 10,
+                        width: 10,
+                        borderRadius: 5,
+                        backgroundColor: "#000",
+                      }}
+                    />
+                  )}
+                </View>
+                  <Text style={{ fontSize: 16, fontWeight: "600", color:"black" }}>{option.label}</Text>
+                <Image
+                  source={option.image}
+                  style={{ width: 30, height: 30, }}
+                />
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <View>
+            {metal === "Gold" && (
+              <View>
+                <TextInput
+                  style={styles.input}
+                  keyboardType="numeric"
+                  value={goldGrams}
+                  onChangeText={setGoldGrams}
+                  placeholder="Gold (grams)"
+                  placeholderTextColor="#999"
+                />
+              </View>
+            )}
+            {metal === "Silver" && (
+              <View>
+                <TextInput
+                  style={styles.input}
+                  keyboardType="numeric"
+                  value={silverGrams}
+                  onChangeText={setSilverGrams}
+                  placeholder="Silver (grams)"
+                  placeholderTextColor="#999"
+
+                />
+              </View>
+            )}
+            {metal === "Mix" && (
+              <View style={{ display: "flex", flexDirection: "row", justifyContent: "space-between" }}>
+                <View style={{ width: "45%" }}>
+                  <TextInput
+                    style={styles.input}
+                    keyboardType="numeric"
+                    value={goldGrams}
+                    onChangeText={setGoldGrams}
+                    placeholder="Gold (grams)"
+                  placeholderTextColor="#999"
+
+                  />
+                </View>
+
+                <View style={{ width: "45%" }}>
+                  <TextInput
+                    style={styles.input}
+                    keyboardType="numeric"
+                    value={silverGrams}
+                    onChangeText={setSilverGrams}
+                    placeholder="Silver (grams)"
+                  placeholderTextColor="#999"
+
+                  />
+                </View>
+              </View>
+            )}
+          </View>
+
+
+
+
+
+
+
           <TouchableOpacity style={styles.imagePicker} onPress={handleReceiptImageSelection}>
             <Text style={styles.imagePickerText}>Upload Receipt Images</Text>
           </TouchableOpacity>
@@ -403,6 +525,18 @@ const AddInvoice = () => {
               </View>
             ))}
           </View>
+
+
+
+
+
+
+
+
+
+
+
+
           <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
             <Text style={styles.submitButtonText}>Submit</Text>
           </TouchableOpacity>

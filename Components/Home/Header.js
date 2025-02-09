@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const Header = () => {
+const Header = (props) => {
     const hamburger = require('../../assets/more.png');
     const logoutLogo = require('../../assets/switch.png');
     const logo = require('../../assets/logo.png');
@@ -42,9 +42,17 @@ const Header = () => {
                 <Image source={logo} style={{ height: 65, width: 65 }} />
             </View>
 
-            <View>
-                <Text>           </Text>
-            </View>
+            {
+                props.id ? (
+                    <View style={{ backgroundColor:"red", height:"50%", padding:5, borderRadius:4 }}>
+                        <Text style={{ color: "white", fontSize:16, fontWeight:"600" }}>{props.id}</Text>
+                    </View>
+                ) :
+                    <View>
+                        <Text>           </Text>
+                    </View>
+
+            }
 
             <Modal
                 transparent={true}
