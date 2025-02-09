@@ -7,6 +7,8 @@ import ImagePicker from 'react-native-image-crop-picker';
 import Header from '../Home/Header';
 import config from '../../config';
 import ToggleSwitch from 'toggle-switch-react-native'
+import { TextInput } from 'react-native-gesture-handler';
+import Toast from 'react-native-toast-message';
 
 
 
@@ -19,6 +21,13 @@ const Settings = () => {
     const signalError = require('../../assets/signal.png');
     const loadingGIF = require("../../assets/loader.gif");
     const [isOn, setIsOn] = useState(null);
+    const showIcon = require('../../assets/eye.png');
+    const hideIcon = require('../../assets/hidden.png');
+    const [showPassword, setShowPassword] = useState(false);
+    const [staffUserName, setStaffUserName] = useState(null);
+    const [staffPassword, setStaffPassword] = useState(null);
+
+
 
 
     useFocusEffect(
@@ -29,6 +38,7 @@ const Settings = () => {
             fetchid();
             fetchUserDetail();
             getStaffStatus();
+            getStaffCredential();
         }, [])
     );
 
@@ -48,6 +58,29 @@ const Settings = () => {
         else {
             setIsOn(false)
         }
+    }
+
+    const getStaffCredential = async() =>{
+        const url = config.BASE_URL + 'getStaffCredential.php';
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+            }),
+        });
+        const result = await response.json();
+       if (result.status ==200){
+            console.log(result.data);
+            setStaffUserName(result.data.user_name);
+            setStaffPassword(result.data.password);
+
+       }
+       else{
+        console.log("something went wrong");
+       }
+
     }
 
 
@@ -74,13 +107,13 @@ const Settings = () => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                "status":status?'yes':'no'
+                "status": status ? 'yes' : 'no'
             }),
         });
         const result = await response.json();
         if (result.status == "success") {
         }
-        else{
+        else {
         }
 
     }
@@ -158,12 +191,43 @@ const Settings = () => {
 
 
 
+    const updateStaffCredential = async() =>{
+        const url = config.BASE_URL + 'updateStaffCredential.php';
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+               "user_name":staffUserName,
+               "password":staffPassword
+            }),
+        });
+        const result = await response.json();
+        if (result.code == "200") {
+            Toast.show({
+                type: 'success',
+                text1: 'Success',
+                text2: 'Staff credentials updated successfully!',
+            });
+        }
+        else {
+            Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: result.message || 'Update failed!',
+            });
+        }
+    }
+
+
+
     if (data) {
         return (
             <View style={{ flex: 1 }}>
                 <Header />
                 <ScrollView showsVerticalScrollIndicator={false}>
-                    <View style={{ backgroundColor: "black", justifyContent: "space-evenly", alignItems: "center", gap: 15, paddingVertical: 10, marginBottom:10 }}>
+                    <View style={{ backgroundColor: "black", justifyContent: "space-evenly", alignItems: "center", gap: 15, paddingVertical: 10, marginBottom: 10 }}>
                         <View style={{ alignItems: "flex-end", width: "90%" }}>
                             <TouchableOpacity onPress={moveToEditPage}>
                                 <Image source={edit} style={{ height: 25, width: 25 }} />
@@ -196,21 +260,50 @@ const Settings = () => {
                         </View>
                     </View>
                     {
-                        isOn!=null?
+                        isOn != null ?
 
-                    <ToggleSwitch
-                        isOn={isOn}
-                        onColor="green"
-                        offColor="red"
-                        label="Staff Status"
-                        labelStyle={{ color: "black", fontWeight: "900" }}
-                        size="medium"
-                        onToggle={newValue => {
-                            setIsOn(newValue);
-                            changeStaffStatus(newValue);
-                        }}
-                    />:""
+                            <ToggleSwitch
+                                isOn={isOn}
+                                onColor="green"
+                                offColor="red"
+                                label="Staff Status"
+                                labelStyle={{ color: "black", fontWeight: "900" }}
+                                size="medium"
+                                onToggle={newValue => {
+                                    setIsOn(newValue);
+                                    changeStaffStatus(newValue);
+                                }}
+                            /> : ""
                     }
+
+                    <View>
+
+                        <View style={{ borderColor: "gray", borderWidth: 1, borderRadius: 5, margin: 10, padding: 5 }}>
+                            <Text style={{ color:"gray" }}>UserName</Text>
+                            <TextInput value={staffUserName} onChangeText={(text) => setStaffUserName(text)} style={{ padding: 0, fontSize: 18, fontWeight: "600" ,color:"black"}} />
+                        </View>
+                        <View style={{ borderColor: "gray", borderWidth: 1, borderRadius: 5, margin: 10, padding: 5 }}>
+                            <Text style={{ color:"gray" }}>Password</Text>
+                            <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                                <View style={{ width: "80%" }}>
+                                    <TextInput onChangeText={(text)=>setStaffPassword(text)} value={staffPassword} secureTextEntry={!showPassword} style={{ color:"black", padding: 0, fontSize: 18, fontWeight: "600" }} />
+                                </View>
+                                <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                                    <Image source={showPassword ? showIcon : hideIcon} style={{ height: 20, width: 20 }} />
+                                </TouchableOpacity>
+                            </View>
+                        </View>
+
+                        <View style={{ justifyContent:"center", alignItems:"center" }}>
+                            <TouchableOpacity onPress={updateStaffCredential} style={{ backgroundColor:"red", padding:10,justifyContent:"center", alignItems:"center", width:150, borderRadius:5  }}>
+                                <Text style={{ color:"white", fontSize:18, fontWeight:"700" }}>Update</Text>
+                            </TouchableOpacity>
+                        </View>
+
+                    </View>
+
+
+
                 </ScrollView>
             </View>
         )
