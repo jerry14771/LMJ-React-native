@@ -48,7 +48,7 @@ const StatusHome = () => {
   });
 
   return (
-    <View style={{}}>
+    <View style={{ flex: 1 }}>
 
       <HeaderWithCollapse toggleVisible={toggleVisible} isVisible={isVisible} rotateAnimation={rotateAnimation} rotateInterpolate={rotateInterpolate} />
 
@@ -57,14 +57,12 @@ const StatusHome = () => {
           height: heightAnim,
           opacity: opacityAnim,
           backgroundColor: '#f1f1f1',
-          borderRadius: 10,
-          padding: 15,
           overflow: "hidden",
         }}
       >
-        <ScrollView contentContainerStyle={{ paddingBottom:20}}>
-          <View style={{ alignItems: "flex-start", marginBottom: 10 }}>
-            <View style={{ paddingHorizontal: 5, backgroundColor: "#03f0fc", borderRadius: 10, paddingVertical: 2 }}>
+        <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
+          <View>
+            <View style={{ paddingHorizontal: 5, backgroundColor: "#03f0fc", paddingVertical: 2, alignItems: "center" }}>
               <Text style={{ fontSize: 12, fontWeight: "600", marginBottom: 5, color: "black" }}>Advance Filter</Text>
             </View>
           </View>
@@ -101,13 +99,71 @@ const StatusHome = () => {
               />
             </View>
           ))}
+          <View style={{ alignItems: "center" }}>
 
-          <TouchableOpacity style={{ padding:5, backgroundColor:"red", borderRadius:5 }} onPress={() => { toggleVisible(); rotateAnimation(); }}>
-            <Text style={{ color:"white" }}>Submit</Text>
-          </TouchableOpacity>
+            <TouchableOpacity style={{ padding: 10, backgroundColor: "#24fffb", borderRadius: 5 }} onPress={() => { toggleVisible(); rotateAnimation(); }}>
+              <Text style={{ color: "white" }}>Search</Text>
+            </TouchableOpacity>
+          </View>
 
         </ScrollView>
       </Animated.View>
+
+      <ScrollView>
+        <View>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo676</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo</Text>
+          <Text>Hellllo1888</Text>
+        </View>
+
+      </ScrollView>
+
+
+
     </View>
   );
 };
