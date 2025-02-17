@@ -1,14 +1,20 @@
-import { View, Text, TextInput, Button, ScrollView, Animated, Dimensions } from 'react-native';
-import React, { useState, useRef } from 'react';
+import { View, Text, TextInput, Button, ScrollView, Animated, Dimensions, Image, TouchableOpacity } from 'react-native';
+import React, { useState, useRef, useEffect } from 'react';
 import HeaderWithCollapse from '../Home/HeaderWithCollapse';
-import { TouchableOpacity } from 'react-native-gesture-handler';
+import CheckBox from "@react-native-community/checkbox";
 
 const StatusHome = () => {
   const [isVisible, setIsVisible] = useState(true);
-  const [name, setName] = useState('');
+  const [address, setAddress] = useState('');
   const [email, setEmail] = useState('');
+  const [amountmin, setAmountmin] = useState('');
+  const [amountmax, setAmountmax] = useState('');
+  const [isGold, setIsGold] = useState(false);
+  const [isSilver, setIsSilver] = useState(false);
+  const [isMix, setIsMix] = useState(false);
 
-  const screenHeight = Dimensions.get("window").height * 0.9; // Get full screen height
+  const screenHeight = Dimensions.get("window").height * 0.9;
+  const clearAll = require('../../assets/multiply.png');
 
   const heightAnim = useRef(new Animated.Value(screenHeight)).current;
   const opacityAnim = useRef(new Animated.Value(1)).current;
@@ -60,50 +66,106 @@ const StatusHome = () => {
           overflow: "hidden",
         }}
       >
-        <ScrollView contentContainerStyle={{ paddingBottom: 20 }}>
-          <View>
-            <View style={{ paddingHorizontal: 5, backgroundColor: "#03f0fc", paddingVertical: 2, alignItems: "center" }}>
-              <Text style={{ fontSize: 12, fontWeight: "600", marginBottom: 5, color: "black" }}>Advance Filter</Text>
+        <ScrollView contentContainerStyle={{ paddingBottom: 20, padding: 10 }}>
+          <View style={{ gap: 10 }}>
+            <View>
+              <View style={{ paddingHorizontal: 5, backgroundColor: "#03f0fc", paddingVertical: 2, alignItems: "center", borderRadius: 5 }}>
+                <Text style={{ fontSize: 12, fontWeight: "600", marginBottom: 5, color: "black" }}>Advance Filter</Text>
+              </View>
             </View>
-          </View>
 
-          {[...Array(9)].map((_, index) => (
-            <View key={index}>
+
+            <View style={{ flexDirection: "row" }}>
               <TextInput
-                placeholder="Name"
-                value={name}
-                onChangeText={setName}
-                placeholderTextColor={'black'}
+                placeholder="Address"
+                value={address}
+                onChangeText={setAddress}
+                placeholderTextColor={'gray'}
                 style={{
                   borderWidth: 1,
                   borderColor: '#ccc',
-                  padding: 10,
                   borderRadius: 5,
-                  marginBottom: 10
+                  padding: 5,
+                  width: '80%',
+                  color: "black"
                 }}
               />
-
-              <TextInput
-                placeholder="Email"
-                value={email}
-                onChangeText={setEmail}
-                placeholderTextColor={'black'}
-                keyboardType="email-address"
-                style={{
-                  borderWidth: 1,
-                  borderColor: '#ccc',
-                  padding: 10,
-                  borderRadius: 5,
-                  marginBottom: 10
-                }}
-              />
+              <View style={{ width: "20%", alignItems: "center", justifyContent: "center" }}>
+                <TouchableOpacity onPress={() => setAddress("")}><Image source={clearAll} style={{ height: 30, width: 30 }} /></TouchableOpacity>
+              </View>
             </View>
-          ))}
-          <View style={{ alignItems: "center" }}>
 
-            <TouchableOpacity style={{ padding: 10, backgroundColor: "#24fffb", borderRadius: 5 }} onPress={() => { toggleVisible(); rotateAnimation(); }}>
-              <Text style={{ color: "white" }}>Search</Text>
-            </TouchableOpacity>
+            <View style={{ justifyContent: "space-between", flexDirection: "row" }}>
+              <View style={{ width: "80%", flexDirection: "row", justifyContent: "space-between" }}>
+                <TextInput
+                  placeholder="Min Billing"
+                  value={amountmin}
+                  onChangeText={setAmountmin}
+                  placeholderTextColor={'gray'}
+                  keyboardType="numeric"
+                  style={{
+                    borderWidth: 1,
+                    borderColor: '#ccc',
+                    padding: 10,
+                    borderRadius: 5,
+                    padding: 5,
+                    width: "47%",
+                    color: "black"
+
+                  }}
+                />
+                <TextInput
+                  placeholder="Max Billing"
+                  value={amountmax}
+                  onChangeText={setAmountmax}
+                  placeholderTextColor={'gray'}
+                  keyboardType="numeric"
+                  style={{
+                    borderWidth: 1,
+                    borderColor: '#ccc',
+                    padding: 10,
+                    borderRadius: 5,
+                    padding: 5,
+                    width: "47%",
+                    color: "black"
+                  }}
+                />
+              </View>
+              <View style={{ width: "20%", alignItems: "center", justifyContent: "center" }}>
+                <TouchableOpacity onPress={() => { setAmountmin(""); setAmountmax("") }}><Image source={clearAll} style={{ height: 30, width: 30 }} /></TouchableOpacity>
+              </View>
+            </View>
+
+
+
+
+            <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+
+              <TouchableOpacity
+                style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsGold(!isGold)}>
+                <CheckBox value={isGold} onValueChange={setIsGold} />
+                <Text style={{ marginLeft: 8 }}>Gold</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsSilver(!isSilver)}>
+                <CheckBox value={isSilver} onValueChange={setIsSilver} />
+                <Text style={{ marginLeft: 8 }}>Silver</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsMix(!isMix)}>
+                <CheckBox value={isMix} onValueChange={setIsMix} />
+                <Text style={{ marginLeft: 8 }}>Mix</Text>
+              </TouchableOpacity>
+
+            </View>
+            <View style={{ alignItems: "center" }}>
+              <TouchableOpacity style={{ padding: 10, backgroundColor: "#24fffb", borderRadius: 5 }} onPress={() => { toggleVisible(); rotateAnimation(); }}>
+                <Text style={{ color: "black" }}>Search</Text>
+              </TouchableOpacity>
+            </View>
+
+
+
           </View>
 
         </ScrollView>
@@ -111,53 +173,11 @@ const StatusHome = () => {
 
       <ScrollView>
         <View>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo676</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo</Text>
-          <Text>Hellllo1888</Text>
+          <Text style={{ color:"black" }}>Hellllo</Text>
+          <Text style={{ color:"black" }}>Hellllo</Text>
+          <Text style={{ color:"black" }}>Hellllo</Text>
+          <Text style={{ color:"black" }}>Hellllo</Text>
+          <Text style={{ color:"black" }}>Hellllo1888</Text>
         </View>
 
       </ScrollView>
