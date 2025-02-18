@@ -2,6 +2,8 @@ import { View, Text, TextInput, Button, ScrollView, Animated, Dimensions, Image,
 import React, { useState, useRef, useEffect } from 'react';
 import HeaderWithCollapse from '../Home/HeaderWithCollapse';
 import CheckBox from "@react-native-community/checkbox";
+import DatePicker from 'react-native-date-picker';
+
 
 const StatusHome = () => {
   const [isVisible, setIsVisible] = useState(true);
@@ -12,7 +14,10 @@ const StatusHome = () => {
   const [isGold, setIsGold] = useState(false);
   const [isSilver, setIsSilver] = useState(false);
   const [isMix, setIsMix] = useState(false);
+  const [deliverDateStart, setdeliveryDateStart] = useState(null);
+  const [isDeliveryDateOpen, setDeliveryDateOpen] = useState(false);
 
+  const calanderLogo = require('../../assets/calendar.png');
   const screenHeight = Dimensions.get("window").height * 0.9;
   const clearAll = require('../../assets/multiply.png');
 
@@ -54,7 +59,7 @@ const StatusHome = () => {
   });
 
   return (
-    <View style={{ flex: 1}}>
+    <View style={{ flex: 1 }}>
 
       <HeaderWithCollapse toggleVisible={toggleVisible} isVisible={isVisible} rotateAnimation={rotateAnimation} rotateInterpolate={rotateInterpolate} />
 
@@ -63,6 +68,7 @@ const StatusHome = () => {
           height: heightAnim,
           opacity: opacityAnim,
           overflow: "hidden",
+          backgroundColor: "white"
         }}
       >
         <ScrollView contentContainerStyle={{ paddingBottom: 20, padding: 10 }}>
@@ -142,21 +148,78 @@ const StatusHome = () => {
 
               <TouchableOpacity
                 style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsGold(!isGold)}>
-                <CheckBox value={isGold} onValueChange={setIsGold} tintColors={{false: "black" }} />
-                <Text style={{ marginLeft: 8, color:"black" }}>Gold</Text>
+                <CheckBox value={isGold} onValueChange={setIsGold} tintColors={{ false: "black" }} />
+                <Text style={{ marginLeft: 8, color: "black" }}>Gold</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsSilver(!isSilver)}>
-                <CheckBox value={isSilver} onValueChange={setIsSilver} tintColors={{false: "black" }} />
-                <Text style={{ marginLeft: 8, color:"black" }}>Silver</Text>
+                <CheckBox value={isSilver} onValueChange={setIsSilver} tintColors={{ false: "black" }} />
+                <Text style={{ marginLeft: 8, color: "black" }}>Silver</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsMix(!isMix)}>
-                <CheckBox value={isMix} onValueChange={setIsMix} tintColors={{false: "black" }} />
-                <Text style={{ marginLeft: 8, color:"black"}}>Mix</Text>
+                <CheckBox value={isMix} onValueChange={setIsMix} tintColors={{ false: "black" }} />
+                <Text style={{ marginLeft: 8, color: "black" }}>Mix</Text>
               </TouchableOpacity>
 
             </View>
+
+
+            <View style={{ flexDirection: "row" }}>
+
+
+              <TouchableOpacity onPress={() => setDeliveryDateOpen(true)} style={{ backgroundColor: "#f0f0f0", padding: 10, marginVertical: 10, borderRadius: 7, borderColor: "#03f0fc", borderWidth: 1, width: "80%" }}>
+                <View style={{ flexDirection: "row", justifyContent: "space-between" }} >
+                  {deliverDateStart ? <Text style={{ color: "black", fontWeight: "600" }}>{deliverDateStart.toLocaleDateString("en-GB", {
+                    day: "numeric",
+                    month: "short",
+                    year: "numeric"
+                  })}</Text> : <Text style={{ color: "gray" }}>Eg. 20/12/2024 (Delivery)</Text>}
+                  <Image source={calanderLogo} style={{ height: 25, width: 25 }} />
+                </View>
+              </TouchableOpacity>
+
+              <View style={{ width: "20%", alignItems: "center", justifyContent: "center" }}>
+                <TouchableOpacity onPress={() => { setdeliveryDateStart(null); }}><Image source={clearAll} style={{ height: 30, width: 30 }} /></TouchableOpacity>
+              </View>
+
+            </View>
+
+
+
+
+
+
+
+
+
+            <DatePicker
+              modal
+              title={"Select Delivery Date"}
+              mode='date'
+              theme='dark'
+              open={isDeliveryDateOpen}
+              date={deliverDateStart || new Date()}
+              onConfirm={(date) => {
+                setDeliveryDateOpen(false);
+                setdeliveryDateStart(date);
+              }}
+              onCancel={() => {
+                setDeliveryDateOpen(false);
+              }}
+            />
+
+
+
+
+
+
+
+
+
+
+
+
             <View style={{ alignItems: "center" }}>
               <TouchableOpacity style={{ padding: 10, backgroundColor: "#24fffb", borderRadius: 5 }} onPress={() => { toggleVisible(); rotateAnimation(); }}>
                 <Text style={{ color: "black" }}>Search</Text>
@@ -172,11 +235,11 @@ const StatusHome = () => {
 
       <ScrollView>
         <View>
-          <Text style={{ color:"black" }}>Hellllo</Text>
-          <Text style={{ color:"black" }}>Hellllo</Text>
-          <Text style={{ color:"black" }}>Hellllo</Text>
-          <Text style={{ color:"black" }}>Hellllo</Text>
-          <Text style={{ color:"black" }}>Hellllo1888</Text>
+          <Text style={{ color: "black" }}>Hellllo</Text>
+          <Text style={{ color: "black" }}>Hellllo</Text>
+          <Text style={{ color: "black" }}>Hellllo</Text>
+          <Text style={{ color: "black" }}>Hellllo</Text>
+          <Text style={{ color: "black" }}>Hellllo1888</Text>
         </View>
 
       </ScrollView>
