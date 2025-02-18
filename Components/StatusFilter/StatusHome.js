@@ -54,7 +54,7 @@ const StatusHome = () => {
   });
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1}}>
 
       <HeaderWithCollapse toggleVisible={toggleVisible} isVisible={isVisible} rotateAnimation={rotateAnimation} rotateInterpolate={rotateInterpolate} />
 
@@ -62,7 +62,6 @@ const StatusHome = () => {
         style={{
           height: heightAnim,
           opacity: opacityAnim,
-          backgroundColor: '#f1f1f1',
           overflow: "hidden",
         }}
       >
@@ -143,18 +142,18 @@ const StatusHome = () => {
 
               <TouchableOpacity
                 style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsGold(!isGold)}>
-                <CheckBox value={isGold} onValueChange={setIsGold} />
-                <Text style={{ marginLeft: 8 }}>Gold</Text>
+                <CheckBox value={isGold} onValueChange={setIsGold} tintColors={{false: "black" }} />
+                <Text style={{ marginLeft: 8, color:"black" }}>Gold</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsSilver(!isSilver)}>
-                <CheckBox value={isSilver} onValueChange={setIsSilver} />
-                <Text style={{ marginLeft: 8 }}>Silver</Text>
+                <CheckBox value={isSilver} onValueChange={setIsSilver} tintColors={{false: "black" }} />
+                <Text style={{ marginLeft: 8, color:"black" }}>Silver</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsMix(!isMix)}>
-                <CheckBox value={isMix} onValueChange={setIsMix} />
-                <Text style={{ marginLeft: 8 }}>Mix</Text>
+                <CheckBox value={isMix} onValueChange={setIsMix} tintColors={{false: "black" }} />
+                <Text style={{ marginLeft: 8, color:"black"}}>Mix</Text>
               </TouchableOpacity>
 
             </View>
