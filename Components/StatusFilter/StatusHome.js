@@ -21,6 +21,24 @@ const StatusHome = () => {
   const screenHeight = Dimensions.get("window").height * 0.9;
   const clearAll = require('../../assets/multiply.png');
 
+
+  const GoldLogo = require("../../assets/gold_bar_shie.png");
+  const SilverLogo = require("../../assets/silver_compressed.png");
+  const MixLogo = require("../../assets/mix.png");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   const heightAnim = useRef(new Animated.Value(screenHeight)).current;
   const opacityAnim = useRef(new Animated.Value(1)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
@@ -143,31 +161,32 @@ const StatusHome = () => {
 
 
 
+            <View style={{ flexDirection: "row" }}>
+              <View style={{ flexDirection: "row", justifyContent: "space-between", width: "80%" }}>
+                <TouchableOpacity
+                  style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsGold(!isGold)}>
+                  <CheckBox value={isGold} onValueChange={setIsGold} tintColors={{ false: "black" }} />
+                  <Image source={GoldLogo} style={{ height: 30, width: 30 }} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsSilver(!isSilver)}>
+                  <CheckBox value={isSilver} onValueChange={setIsSilver} tintColors={{ false: "black" }} />
+                  <Image source={SilverLogo} style={{ height: 25, width: 25 }} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsMix(!isMix)}>
+                  <CheckBox value={isMix} onValueChange={setIsMix} tintColors={{ false: "black" }} />
+                  <Image source={MixLogo} style={{ height: 30, width: 30 }} />
+                </TouchableOpacity>
+              </View>
 
-            <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-
-              <TouchableOpacity
-                style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsGold(!isGold)}>
-                <CheckBox value={isGold} onValueChange={setIsGold} tintColors={{ false: "black" }} />
-                <Text style={{ marginLeft: 8, color: "black" }}>Gold</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsSilver(!isSilver)}>
-                <CheckBox value={isSilver} onValueChange={setIsSilver} tintColors={{ false: "black" }} />
-                <Text style={{ marginLeft: 8, color: "black" }}>Silver</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsMix(!isMix)}>
-                <CheckBox value={isMix} onValueChange={setIsMix} tintColors={{ false: "black" }} />
-                <Text style={{ marginLeft: 8, color: "black" }}>Mix</Text>
-              </TouchableOpacity>
-
+              <View style={{ width: "20%", alignItems: "center", justifyContent: "center" }}>
+                <TouchableOpacity onPress={() => { setIsGold(false); setIsSilver(false); setIsMix(false); }}><Image source={clearAll} style={{ height: 30, width: 30 }} /></TouchableOpacity>
+              </View>
             </View>
 
 
             <View style={{ flexDirection: "row" }}>
-
-
               <TouchableOpacity onPress={() => setDeliveryDateOpen(true)} style={{ backgroundColor: "#f0f0f0", padding: 10, marginVertical: 10, borderRadius: 7, borderColor: "#03f0fc", borderWidth: 1, width: "80%" }}>
                 <View style={{ flexDirection: "row", justifyContent: "space-between" }} >
                   {deliverDateStart ? <Text style={{ color: "black", fontWeight: "600" }}>{deliverDateStart.toLocaleDateString("en-GB", {

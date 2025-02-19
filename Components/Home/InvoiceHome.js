@@ -4,6 +4,8 @@ import { useNavigation } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
 import config from '../../config';
 import Header from './Header';
+import LottieView from 'lottie-react-native';
+
 
 const TriangleCorner = ({ text }) => {
     return (
@@ -55,10 +57,10 @@ const InvoiceHome = () => {
 
     useFocusEffect(
         useCallback(() => {
-            if(valueRef.current=="delivery"){
+            if (valueRef.current == "delivery") {
                 fetchTodaysDelivery();
             }
-            else{
+            else {
                 fetchTodaysOrder();
             }
         }, [])
@@ -99,6 +101,8 @@ const InvoiceHome = () => {
         </TouchableOpacity>
     );
 
+    console.log(data);
+
     return (
         <View style={styles.container}>
             <StatusBar backgroundColor="black" barStyle="light-content" />
@@ -123,24 +127,37 @@ const InvoiceHome = () => {
 
             </View>
 
-        
-        <View style={{ flexDirection:"row", width:"100%", justifyContent: 'space-evenly', }}>
 
-                <TouchableOpacity style={valueRef.current!="delivery"?styles.titleContainerActive:styles.titleContainer}  onPress={fetchTodaysOrder} >
-                    <Text style={valueRef.current!="delivery"?styles.titleTextActive:styles.titleText}>Today's Orders</Text>
+            <View style={{ flexDirection: "row", width: "100%", justifyContent: 'space-evenly', }}>
+
+                <TouchableOpacity style={valueRef.current != "delivery" ? styles.titleContainerActive : styles.titleContainer} onPress={fetchTodaysOrder} >
+                    <Text style={valueRef.current != "delivery" ? styles.titleTextActive : styles.titleText}>Today's Orders</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={valueRef.current=="delivery"?styles.titleContainerActive:styles.titleContainer} onPress={fetchTodaysDelivery}>
-                    <Text style={valueRef.current=="delivery"?styles.titleTextActive:styles.titleText}>Today's Delivery</Text>
+                <TouchableOpacity style={valueRef.current == "delivery" ? styles.titleContainerActive : styles.titleContainer} onPress={fetchTodaysDelivery}>
+                    <Text style={valueRef.current == "delivery" ? styles.titleTextActive : styles.titleText}>Today's Delivery</Text>
                 </TouchableOpacity>
-
             </View>
 
-            <FlatList
-                data={data}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.id.toString()}
-            />
+
+            {
+               data && data.length ==0 ? (<View style={{ justifyContent: "center", alignItems: "center" }}>
+                    <View style={{ height: 400, aspectRatio: 1 }}>
+                        <LottieView style={{ flex: 1 }} source={require('../../assets/Animation - 1739937488069.json')} autoPlay loop />
+                    </View>
+                </View>) :
+                    (<FlatList
+                        data={data}
+                        renderItem={renderItem}
+                        keyExtractor={(item) => item.id.toString()}
+                    />)
+
+            }
+
+
+
+
+
 
             {/* <View style={{ backgroundColor:"#00ffee", justifyContent:"center", height:30, alignItems:"center", display:"flex"}}><Text style={{ color:"black" }}>Legend Here</Text></View> */}
         </View>
@@ -189,7 +206,7 @@ const styles = StyleSheet.create({
         backgroundColor: "white",
         borderRadius: 5,
         padding: 5,
-        width:"45%"
+        width: "45%"
     },
     titleContainerActive: {
         marginVertical: 10,
@@ -198,7 +215,7 @@ const styles = StyleSheet.create({
         backgroundColor: "white",
         borderRadius: 5,
         padding: 5,
-        width:"45%",
+        width: "45%",
         backgroundColor: "#044780"
     },
     titleText: {
