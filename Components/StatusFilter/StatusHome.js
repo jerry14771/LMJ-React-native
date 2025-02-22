@@ -162,11 +162,13 @@ const StatusHome = () => {
 
 
             <View style={{ flexDirection: "row" }}>
+
               <View style={{ flexDirection: "row", justifyContent: "space-between", width: "80%" }}>
                 <TouchableOpacity
                   style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsGold(!isGold)}>
                   <CheckBox value={isGold} onValueChange={setIsGold} tintColors={{ false: "black" }} />
                   <Image source={GoldLogo} style={{ height: 30, width: 30 }} />
+
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsSilver(!isSilver)}>
