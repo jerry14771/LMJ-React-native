@@ -72,7 +72,6 @@ const Settings = () => {
         });
         const result = await response.json();
        if (result.status ==200){
-            console.log(result.data);
             setStaffUserName(result.data.user_name);
             setStaffPassword(result.data.password);
 

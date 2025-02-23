@@ -101,7 +101,6 @@ const InvoiceHome = () => {
         </TouchableOpacity>
     );
 
-    console.log(data);
 
     return (
         <View style={styles.container}>

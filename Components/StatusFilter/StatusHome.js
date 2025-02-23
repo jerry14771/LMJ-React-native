@@ -15,7 +15,9 @@ const StatusHome = () => {
   const [isSilver, setIsSilver] = useState(false);
   const [isMix, setIsMix] = useState(false);
   const [deliverDateStart, setdeliveryDateStart] = useState(null);
-  const [isDeliveryDateOpen, setDeliveryDateOpen] = useState(false);
+  const [deliverDateEnd, setdeliveryDateEnd] = useState(null);
+  const [isDeliveryDateOpenStart, setDeliveryDateOpenStart] = useState(false);
+  const [isDeliveryDateOpenEnd, setDeliveryDateOpenEnd] = useState(false);
 
   const calanderLogo = require('../../assets/calendar.png');
   const screenHeight = Dimensions.get("window").height * 0.9;
@@ -90,12 +92,12 @@ const StatusHome = () => {
         }}
       >
         <ScrollView contentContainerStyle={{ paddingBottom: 20, padding: 10 }}>
-          <View style={{ gap: 10 }}>
-            <View>
+          <View style={{ gap: 15 }}>
+            {/* <View>
               <View style={{ paddingHorizontal: 5, backgroundColor: "#03f0fc", paddingVertical: 2, alignItems: "center", borderRadius: 5 }}>
                 <Text style={{ fontSize: 12, fontWeight: "600", marginBottom: 5, color: "black" }}>Advance Filter</Text>
               </View>
-            </View>
+            </View> */}
 
 
             <View style={{ flexDirection: "row" }}>
@@ -105,10 +107,10 @@ const StatusHome = () => {
                 onChangeText={setAddress}
                 placeholderTextColor={'gray'}
                 style={{
-                  borderWidth: 1,
-                  borderColor: '#ccc',
+                  backgroundColor: "#f0f0f0",
                   borderRadius: 5,
                   padding: 5,
+                  paddingHorizontal: 10,
                   width: '80%',
                   color: "black"
                 }}
@@ -117,126 +119,118 @@ const StatusHome = () => {
                 <TouchableOpacity onPress={() => setAddress("")}><Image source={clearAll} style={{ height: 30, width: 30 }} /></TouchableOpacity>
               </View>
             </View>
+            <View>
 
-            <View style={{ justifyContent: "space-between", flexDirection: "row" }}>
-              <View style={{ width: "80%", flexDirection: "row", justifyContent: "space-between" }}>
-                <TextInput
-                  placeholder="Min Billing"
-                  value={amountmin}
-                  onChangeText={setAmountmin}
-                  placeholderTextColor={'gray'}
-                  keyboardType="numeric"
-                  style={{
-                    borderWidth: 1,
-                    borderColor: '#ccc',
-                    padding: 10,
-                    borderRadius: 5,
-                    padding: 5,
-                    width: "47%",
-                    color: "black"
+              <Text style={{ color: "black", fontWeight: "600" }}>Billing Amount</Text>
+              <View style={{ justifyContent: "space-between", flexDirection: "row" }}>
+                <View style={{ width: "80%", flexDirection: "row", justifyContent: "space-between" }}>
+                  <TextInput
+                    placeholder="Min Amt"
+                    value={amountmin}
+                    onChangeText={setAmountmin}
+                    placeholderTextColor={'gray'}
+                    keyboardType="numeric"
+                    style={{
+                      backgroundColor: "#f0f0f0",
+                      padding: 10,
+                      borderRadius: 5,
+                      padding: 5,
+                      width: "47%",
+                      color: "black",
+                      paddingHorizontal: 10,
 
-                  }}
-                />
-                <TextInput
-                  placeholder="Max Billing"
-                  value={amountmax}
-                  onChangeText={setAmountmax}
-                  placeholderTextColor={'gray'}
-                  keyboardType="numeric"
-                  style={{
-                    borderWidth: 1,
-                    borderColor: '#ccc',
-                    padding: 10,
-                    borderRadius: 5,
-                    padding: 5,
-                    width: "47%",
-                    color: "black"
-                  }}
-                />
-              </View>
-              <View style={{ width: "20%", alignItems: "center", justifyContent: "center" }}>
-                <TouchableOpacity onPress={() => { setAmountmin(""); setAmountmax("") }}><Image source={clearAll} style={{ height: 30, width: 30 }} /></TouchableOpacity>
-              </View>
-            </View>
+                    }}
+                  />
+                  <TextInput
+                    placeholder="Max Amt"
+                    value={amountmax}
+                    onChangeText={setAmountmax}
+                    placeholderTextColor={'gray'}
+                    keyboardType="numeric"
+                    style={{
+                      padding: 10,
+                      borderRadius: 5,
+                      padding: 5,
+                      width: "47%",
+                      color: "black",
+                      backgroundColor: "#f0f0f0",
+                      paddingHorizontal: 10,
 
-
-
-            <View style={{ flexDirection: "row" }}>
-
-              <View style={{ flexDirection: "row", justifyContent: "space-between", width: "80%" }}>
-                <TouchableOpacity
-                  style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsGold(!isGold)}>
-                  <CheckBox value={isGold} onValueChange={setIsGold} tintColors={{ false: "black" }} />
-                  <Image source={GoldLogo} style={{ height: 30, width: 30 }} />
-
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsSilver(!isSilver)}>
-                  <CheckBox value={isSilver} onValueChange={setIsSilver} tintColors={{ false: "black" }} />
-                  <Image source={SilverLogo} style={{ height: 25, width: 25 }} />
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsMix(!isMix)}>
-                  <CheckBox value={isMix} onValueChange={setIsMix} tintColors={{ false: "black" }} />
-                  <Image source={MixLogo} style={{ height: 30, width: 30 }} />
-                </TouchableOpacity>
-              </View>
-
-              <View style={{ width: "20%", alignItems: "center", justifyContent: "center" }}>
-                <TouchableOpacity onPress={() => { setIsGold(false); setIsSilver(false); setIsMix(false); }}><Image source={clearAll} style={{ height: 30, width: 30 }} /></TouchableOpacity>
-              </View>
-            </View>
-
-
-            <View style={{ flexDirection: "row" }}>
-              <TouchableOpacity onPress={() => setDeliveryDateOpen(true)} style={{ backgroundColor: "#f0f0f0", padding: 10, marginVertical: 10, borderRadius: 7, borderColor: "#03f0fc", borderWidth: 1, width: "80%" }}>
-                <View style={{ flexDirection: "row", justifyContent: "space-between" }} >
-                  {deliverDateStart ? <Text style={{ color: "black", fontWeight: "600" }}>{deliverDateStart.toLocaleDateString("en-GB", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric"
-                  })}</Text> : <Text style={{ color: "gray" }}>Eg. 20/12/2024 (Delivery)</Text>}
-                  <Image source={calanderLogo} style={{ height: 25, width: 25 }} />
+                    }}
+                  />
                 </View>
-              </TouchableOpacity>
-
-              <View style={{ width: "20%", alignItems: "center", justifyContent: "center" }}>
-                <TouchableOpacity onPress={() => { setdeliveryDateStart(null); }}><Image source={clearAll} style={{ height: 30, width: 30 }} /></TouchableOpacity>
+                <View style={{ width: "20%", alignItems: "center", justifyContent: "center" }}>
+                  <TouchableOpacity onPress={() => { setAmountmin(""); setAmountmax("") }}><Image source={clearAll} style={{ height: 30, width: 30 }} /></TouchableOpacity>
+                </View>
               </View>
+            </View>
 
+            <View>
+              <Text style={{ color: "black", fontWeight: "600" }}>Metal</Text>
+              <View style={{ flexDirection: "row" }}>
+
+                <View style={{ flexDirection: "row", justifyContent: "space-between", width: "80%" }}>
+                  <TouchableOpacity
+                    style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsGold(!isGold)}>
+                    <CheckBox value={isGold} onValueChange={setIsGold} tintColors={{ false: "black" }} />
+                    <Image source={GoldLogo} style={{ height: 25, width: 25 }} />
+                    <Text style={{ color: "black", fontSize: 13 }}>Gold</Text>
+
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsSilver(!isSilver)}>
+                    <CheckBox value={isSilver} onValueChange={setIsSilver} tintColors={{ false: "black" }} />
+                    <Image source={SilverLogo} style={{ height: 22, width: 22 }} />
+                    <Text style={{ color: "black", fontSize: 13 }}>Silver</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity
+                    style={{ flexDirection: "row", alignItems: "center" }} onPress={() => setIsMix(!isMix)}>
+                    <CheckBox value={isMix} onValueChange={setIsMix} tintColors={{ false: "black" }} />
+                    <Image source={MixLogo} style={{ height: 25, width: 25 }} />
+                    <Text style={{ color: "black", fontSize: 13 }}>Mix</Text>
+                  </TouchableOpacity>
+                </View>
+
+                <View style={{ width: "20%", alignItems: "center", justifyContent: "center" }}>
+                  <TouchableOpacity onPress={() => { setIsGold(false); setIsSilver(false); setIsMix(false); }}><Image source={clearAll} style={{ height: 30, width: 30 }} /></TouchableOpacity>
+                </View>
+              </View>
             </View>
 
 
+            <View>
+              <Text style={{ color: "black", fontWeight: "600" }}>Delivery Date Filter</Text>
+              <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                <View style={{ width: "80%", flexDirection: "row", justifyContent: "space-between" }}>
+                  <TouchableOpacity onPress={() => setDeliveryDateOpenStart(true)} style={{ backgroundColor: "#f0f0f0", padding: 10, marginVertical: 2, borderRadius: 7, width: '48%' }}>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                      <Text style={{ color: deliverDateStart ? "black" : "gray", fontWeight: deliverDateStart ? "600" : "normal" }}>
+                        {deliverDateStart ? deliverDateStart.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "From"}</Text>
+                      {deliverDateStart ? <View style={{ height: 25, width: 25 }} /> : <Image source={calanderLogo} style={{ height: 25, width: 25 }} />}
+                    </View>
+                  </TouchableOpacity>
 
+                  <TouchableOpacity onPress={() => setDeliveryDateOpenEnd(true)} style={{ backgroundColor: "#f0f0f0", padding: 10, marginVertical: 2, borderRadius: 7, width: '48%' }}>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                      <Text style={{ color: deliverDateEnd ? "black" : "gray", fontWeight: deliverDateEnd ? "600" : "normal" }}>
+                        {deliverDateEnd ? deliverDateEnd.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" }) : "To"}</Text>
+                      {deliverDateEnd ? <View style={{ height: 25, width: 25 }} /> : <Image source={calanderLogo} style={{ height: 25, width: 25 }} />}
+                    </View>
+                  </TouchableOpacity>
+                </View>
 
+                <View style={{ width: "20%", alignItems: "center", justifyContent: "center" }}>
+                  <TouchableOpacity onPress={() => { setdeliveryDateStart(null); setdeliveryDateEnd(null); }}><Image source={clearAll} style={{ height: 30, width: 30 }} /></TouchableOpacity>
+                </View>
+              </View>
+            </View>
 
-
-
-
-
-            <DatePicker
-              modal
-              title={"Select Delivery Date"}
-              mode='date'
-              theme='dark'
-              open={isDeliveryDateOpen}
-              date={deliverDateStart || new Date()}
-              onConfirm={(date) => {
-                setDeliveryDateOpen(false);
-                setdeliveryDateStart(date);
-              }}
-              onCancel={() => {
-                setDeliveryDateOpen(false);
-              }}
-            />
-
-
-
-
-
-
-
-
+            <DatePicker modal title={"Select Delivery Date"} mode='date' theme='dark' open={isDeliveryDateOpenStart} date={deliverDateStart || new Date()} onConfirm={(date) => {
+              setDeliveryDateOpenStart(false); setdeliveryDateStart(date);
+            }} onCancel={() => { setDeliveryDateOpenStart(false); }} />
+            <DatePicker modal title={"Select Delivery Date"} mode='date' theme='dark' open={isDeliveryDateOpenEnd} date={deliverDateEnd || new Date()} onConfirm={(date) => {
+              setDeliveryDateOpenEnd(false); setdeliveryDateEnd(date);
+            }} onCancel={() => { setDeliveryDateOpenEnd(false); }} />
 
 
 
