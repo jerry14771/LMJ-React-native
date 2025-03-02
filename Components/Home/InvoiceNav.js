@@ -11,16 +11,16 @@ import EditInvoice from './EditInvoice';
 
 
 const InvoiceNav = () => {
-    const InvoiceStack = createStackNavigator();
+  const InvoiceStack = createStackNavigator();
 
   return (
     <InvoiceStack.Navigator>
-    <InvoiceStack.Screen name="InvoiceHome" component={InvoiceHome} options={{ headerShown: false }} />
-    <InvoiceStack.Screen name="AddInvoice" component={AddInvoice} options={{ headerShown: false }} />
-    <InvoiceStack.Screen name="InvoiceDetail" component={InvoiceDetail} options={{ headerShown: false }} />
-    <InvoiceStack.Screen name="ListAllOrder" component={ListAllOrder} options={{ headerShown: false }} />
-    <InvoiceStack.Screen name="EditInvoice" component={EditInvoice} options={{ headerShown: false }} />
-  </InvoiceStack.Navigator>
+      <InvoiceStack.Screen name="InvoiceHome" component={InvoiceHome} options={{ headerShown: false }} />
+      <InvoiceStack.Screen name="AddInvoice" component={AddInvoice} options={{ headerShown: false }} />
+      <InvoiceStack.Screen name="InvoiceDetail" component={InvoiceDetail} options={{ headerShown: false }} />
+      <InvoiceStack.Screen name="ListAllOrder" component={ListAllOrder} options={{ headerShown: false }} />
+      <InvoiceStack.Screen name="EditInvoice" component={EditInvoice} options={{ headerShown: false }} />
+    </InvoiceStack.Navigator>
   )
 }
 

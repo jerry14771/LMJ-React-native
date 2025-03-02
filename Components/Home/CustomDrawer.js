@@ -111,10 +111,10 @@ const handleConfirm = async() => {
           </TouchableOpacity>
 
 
-          <TouchableOpacity onPress={() => { navigation.navigate("StatusHome") }} style={{ marginLeft: 10, backgroundColor: pageName == "StatusHome" ? "#d4af37" : "transparent", borderRadius: 5, marginRight: 10 }}>
+          <TouchableOpacity onPress={() => { navigation.navigate("FilterNav") }} style={{ marginLeft: 10, backgroundColor: pageName == "FilterNav" ? "#d4af37" : "transparent", borderRadius: 5, marginRight: 10 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12, gap: 10 }}>
-              <Image source={pageName == "StatusHome" ? filterActive : filterDeactive} style={{ height: 18, width: 18 }} />
-              <Text style={{ marginLeft: 10, fontFamily: 'Inter-Bold', fontSize: 15, color: pageName == "StatusHome" ? "white" : "gray" }}>Filter</Text>
+              <Image source={pageName == "FilterNav" ? filterActive : filterDeactive} style={{ height: 18, width: 18 }} />
+              <Text style={{ marginLeft: 10, fontFamily: 'Inter-Bold', fontSize: 15, color: pageName == "FilterNav" ? "white" : "gray" }}>Filter</Text>
             </View>
           </TouchableOpacity>
 

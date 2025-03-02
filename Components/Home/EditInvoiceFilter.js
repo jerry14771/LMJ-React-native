@@ -10,7 +10,7 @@ import Contacts from 'react-native-contacts';
 const screenWidth = Dimensions.get('window').width;
 const imageSize = (screenWidth - 75) / 3;
 
-const EditInvoice = ({ route }) => {
+const EditInvoiceFilter = ({ route }) => {
     const getFullImagePath = (path) => `https://lmjak.co.in/appAPI/${path.replace(/\\/g, '')}`;
     const navigation = useNavigation();
     const [receiptImages, setReceiptImages] = useState(route.params.invoice.receiptImages ? JSON.parse(route.params.invoice.receiptImages).map((img) => ({ uri: getFullImagePath(img), isExisting: true })) : []);
@@ -242,7 +242,7 @@ const EditInvoice = ({ route }) => {
             const result = await response.json();
             if (result.status === 'success') {
                 Alert.alert('Success', 'Invoice updated successfully');
-                navigation.navigate('InvoiceHome');
+                navigation.navigate('StatusHome');
             } else {
                 Alert.alert('Error', result.message);
             }
@@ -663,4 +663,4 @@ const styles = StyleSheet.create({
     },
 });
 
-export default EditInvoice;
+export default EditInvoiceFilter;
