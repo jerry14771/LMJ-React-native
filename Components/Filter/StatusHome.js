@@ -1,6 +1,6 @@
 import { View, Text, TextInput, Button, ScrollView, Animated, Dimensions, Image, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
 import React, { useState, useRef, useEffect } from 'react';
-import HeaderWithCollapse from '../Home/HeaderWithCollapse';
+import HeaderWithCollapse from '../Common/HeaderWithCollapse';
 import CheckBox from "@react-native-community/checkbox";
 import DatePicker from 'react-native-date-picker';
 import config from '../../config';

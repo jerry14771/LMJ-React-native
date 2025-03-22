@@ -2,7 +2,7 @@ import { View, Text, Image, Modal, TouchableOpacity, StyleSheet, ScrollView, But
 import React, { useState } from 'react';
 import ImageView from 'react-native-image-viewing';
 import config from '../../config';
-import Header from './Header';
+import Header from '../Common/Header';
 import { useNavigation } from '@react-navigation/native';
 import Share from 'react-native-share';
 import { Gesture, GestureDetector, GestureHandlerRootView } from 'react-native-gesture-handler';

@@ -3,7 +3,7 @@ import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { useFocusEffect } from '@react-navigation/native';
 import config from '../../config';
-import Header from './Header';
+import Header from '../Common/Header';
 import LottieView from 'lottie-react-native';
 
 
@@ -152,13 +152,6 @@ const InvoiceHome = () => {
                     />)
 
             }
-
-
-
-
-
-
-            {/* <View style={{ backgroundColor:"#00ffee", justifyContent:"center", height:30, alignItems:"center", display:"flex"}}><Text style={{ color:"black" }}>Legend Here</Text></View> */}
         </View>
     );
 };
@@ -292,17 +285,17 @@ const styles = StyleSheet.create({
         height: 0,
         backgroundColor: "transparent",
         borderStyle: "solid",
-        borderRightWidth: 80, // adjust for size
-        borderTopWidth: 60, // adjust for size
+        borderRightWidth: 80,
+        borderTopWidth: 60,
         borderRightColor: "transparent",
-        borderTopColor: "red", // change to your desired color
+        borderTopColor: "red",
     },
     ribbonText: {
         position: 'absolute',
-        left: 5, // adjust to position the text properly
-        top: 5, // adjust to position the text properly
+        left: 5,
+        top: 5, 
         fontSize: 15,
-        color: '#fff', // white text for visibility
+        color: '#fff',
         fontWeight: 'bold',
         textAlign: 'center',
     },

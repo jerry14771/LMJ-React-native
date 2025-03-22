@@ -4,7 +4,7 @@ import { useNavigation } from '@react-navigation/native'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useFocusEffect } from '@react-navigation/native';
 import ImagePicker from 'react-native-image-crop-picker';
-import Header from '../Home/Header';
+import Header from '../Common/Header';
 import config from '../../config';
 import ToggleSwitch from 'toggle-switch-react-native'
 import { TextInput } from 'react-native-gesture-handler';
@@ -60,7 +60,7 @@ const Settings = () => {
         }
     }
 
-    const getStaffCredential = async() =>{
+    const getStaffCredential = async () => {
         const url = config.BASE_URL + 'getStaffCredential.php';
         const response = await fetch(url, {
             method: 'POST',
@@ -71,14 +71,14 @@ const Settings = () => {
             }),
         });
         const result = await response.json();
-       if (result.status ==200){
+        if (result.status == 200) {
             setStaffUserName(result.data.user_name);
             setStaffPassword(result.data.password);
 
-       }
-       else{
-        console.log("something went wrong");
-       }
+        }
+        else {
+            console.log("something went wrong");
+        }
 
     }
 
@@ -148,6 +148,7 @@ const Settings = () => {
             includeBase64: true,
         }).then(image => {
             setuserImg(image)
+            uploadImage(image);
 
         });
     };
@@ -160,8 +161,51 @@ const Settings = () => {
             includeBase64: true,
         }).then(image => {
             setuserImg(image)
+            uploadImage(image);
         });
     };
+
+
+
+    const uploadImage = async (image) => {
+        const formData = new FormData();
+        formData.append('profile_pic', {
+            uri: image.path,
+            type: image.mime,
+            name: `profile_${Date.now()}.jpg`,
+        });
+
+        const response = await fetch(config.BASE_URL + 'updateProfilePic.php', {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'Accept': 'application/json',
+                'Content-Type': 'multipart/form-data',
+            },
+        });
+
+        const result = await response.json();
+
+        if (result.status === "success") {
+            Toast.show({
+                type: 'success',
+                text1: 'Profile Updated',
+                text2: 'Image uploaded successfully!',
+            });
+            fetchUserDetail();
+        } 
+
+    };
+
+
+
+
+
+
+
+
+
+
 
     useEffect(() => {
         const changeProfilePic = async () => {
@@ -190,34 +234,45 @@ const Settings = () => {
 
 
 
-    const updateStaffCredential = async() =>{
+    const updateStaffCredential = async () => {
         const url = config.BASE_URL + 'updateStaffCredential.php';
-        const response = await fetch(url, {
+        fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-               "user_name":staffUserName,
-               "password":staffPassword
+                "user_name": staffUserName,
+                "password": staffPassword
             }),
-        });
-        const result = await response.json();
-        if (result.code == "200") {
-            Toast.show({
-                type: 'success',
-                text1: 'Success',
-                text2: 'Staff credentials updated successfully!',
-            });
-        }
-        else {
+        })
+        .then((response) => response.json())
+        .then((result) => {
+            if (result.code == "200") {
+                Toast.show({
+                    type: 'success',
+                    text1: 'Success',
+                    text2: 'Staff credentials updated successfully!',
+                });
+            } else {
+                Toast.show({
+                    type: 'error',
+                    text1: 'Error',
+                    text2: result.message || 'Update failed!',
+                });
+            }
+        })
+        .catch((error) => {
+            console.error("Error updating staff credentials:", error);
             Toast.show({
                 type: 'error',
-                text1: 'Error',
-                text2: result.message || 'Update failed!',
+                text1: 'Network Error',
+                text2: 'Something went wrong. Please try again.',
             });
-        }
-    }
+        });
+    };
+    
+    
 
 
 
@@ -228,12 +283,12 @@ const Settings = () => {
                 <ScrollView showsVerticalScrollIndicator={false}>
                     <View style={{ backgroundColor: "black", justifyContent: "space-evenly", alignItems: "center", gap: 15, paddingVertical: 10, marginBottom: 10 }}>
                         <View style={{ alignItems: "flex-end", width: "90%" }}>
-                            <TouchableOpacity onPress={moveToEditPage}>
+                            {/* <TouchableOpacity onPress={moveToEditPage}>
                                 <Image source={edit} style={{ height: 25, width: 25 }} />
-                            </TouchableOpacity>
+                            </TouchableOpacity> */}
                         </View>
                         <View style={{ padding: 5, backgroundColor: "#d4af37", borderRadius: 80 }}>
-                            <Image source={{ uri: data.profile_pic ? data.profile_pic : "https://cdn-icons-png.flaticon.com/512/149/149071.png" }} style={{ height: 150, width: 150, borderRadius: 75 }} />
+                            <Image source={{ uri: data.profile_pic ? config.BASE_URL + data.profile_pic : "https://cdn-icons-png.flaticon.com/512/149/149071.png" }} style={{ height: 150, width: 150, borderRadius: 75 }} />
                             <TouchableOpacity onPress={onSelectImage} activeOpacity={0.5}
                                 style={{
                                     position: 'absolute',
@@ -278,14 +333,14 @@ const Settings = () => {
                     <View>
 
                         <View style={{ borderColor: "gray", borderWidth: 1, borderRadius: 5, margin: 10, padding: 5 }}>
-                            <Text style={{ color:"gray" }}>UserName</Text>
-                            <TextInput value={staffUserName} onChangeText={(text) => setStaffUserName(text)} style={{ padding: 0, fontSize: 18, fontWeight: "600" ,color:"black"}} />
+                            <Text style={{ color: "gray" }}>UserName</Text>
+                            <TextInput value={staffUserName} onChangeText={(text) => setStaffUserName(text)} style={{ padding: 0, fontSize: 18, fontWeight: "600", color: "black" }} />
                         </View>
                         <View style={{ borderColor: "gray", borderWidth: 1, borderRadius: 5, margin: 10, padding: 5 }}>
-                            <Text style={{ color:"gray" }}>Password</Text>
+                            <Text style={{ color: "gray" }}>Password</Text>
                             <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
                                 <View style={{ width: "80%" }}>
-                                    <TextInput onChangeText={(text)=>setStaffPassword(text)} value={staffPassword} secureTextEntry={!showPassword} style={{ color:"black", padding: 0, fontSize: 18, fontWeight: "600" }} />
+                                    <TextInput onChangeText={(text) => setStaffPassword(text)} value={staffPassword} secureTextEntry={!showPassword} style={{ color: "black", padding: 0, fontSize: 18, fontWeight: "600" }} />
                                 </View>
                                 <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                                     <Image source={showPassword ? showIcon : hideIcon} style={{ height: 20, width: 20 }} />
@@ -293,9 +348,9 @@ const Settings = () => {
                             </View>
                         </View>
 
-                        <View style={{ justifyContent:"center", alignItems:"center" }}>
-                            <TouchableOpacity onPress={updateStaffCredential} style={{ backgroundColor:"red", padding:10,justifyContent:"center", alignItems:"center", width:150, borderRadius:5  }}>
-                                <Text style={{ color:"white", fontSize:18, fontWeight:"700" }}>Update</Text>
+                        <View style={{ justifyContent: "center", alignItems: "center" }}>
+                            <TouchableOpacity onPress={updateStaffCredential} style={{ backgroundColor: "red", padding: 10, justifyContent: "center", alignItems: "center", width: 150, borderRadius: 5 }}>
+                                <Text style={{ color: "white", fontSize: 18, fontWeight: "700" }}>Update</Text>
                             </TouchableOpacity>
                         </View>
 

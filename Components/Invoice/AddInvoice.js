@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { FlatList, Modal, View, TextInput, Text, TouchableOpacity, Image, StyleSheet, Alert, ScrollView, Dimensions, ActivityIndicator, Button } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import DatePicker from 'react-native-date-picker';
-import Header from './Header';
+import Header from '../Common/Header';
 import { useNavigation } from '@react-navigation/native';
 import config from '../../config';
 import Contacts from 'react-native-contacts';

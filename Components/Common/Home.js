@@ -1,13 +1,12 @@
 import { View, Text } from 'react-native'
 import React from 'react'
 import { createDrawerNavigator } from '@react-navigation/drawer';
-import InvoiceHome from './InvoiceHome';
+import InvoiceHome from '../Invoice/InvoiceHome';
 import Udhari from '../Udhari/Udhari';
-import InvoiceNav from './InvoiceNav';
+import InvoiceNav from '../Invoice/InvoiceNav';
 import CustomDrawer from './CustomDrawer';
-import Settings from '../Setting/Settings';
-import FilterNav from './FilterNav';
-
+import Settings from '../Settings/Settings';
+import FilterNav from '../Filter/FilterNav';
 
 
 const Home = () => {

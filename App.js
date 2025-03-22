@@ -5,8 +5,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ReactNativeBiometrics from 'react-native-biometrics';
 import Login from './Components/Login/Login';
-import Home from './Components/Home/Home';
-import PinAuth from './Components/Home/PinAuth';
+import Home from './Components/Common/Home';
+import PinAuth from './Components/Login/PinAuth';
 import Toast from 'react-native-toast-message';
 
 function App() {

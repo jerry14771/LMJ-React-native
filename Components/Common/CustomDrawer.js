@@ -10,8 +10,8 @@ const CustomDrawer = (props) => {
 
   const navigation = useNavigation();
 
-  const reciptActive = require("../../assets/invoice_sidebar_active.png");
-  const reciptDeactive = require("../../assets/invoice_sidebar_deactive.png");
+  const invoiceActive = require("../../assets/invoice_sidebar_active.png");
+  const invoiceDeactive = require("../../assets/invoice_sidebar_deactive.png");
   const filterActive = require("../../assets/filterWhite.png");
   const filterDeactive = require("../../assets/filter.png");
   const udhaarActive = require("../../assets/cashback_active.png");
@@ -96,7 +96,7 @@ const handleConfirm = async() => {
         <View>
           <View style={{ alignItems: "center", flexDirection: "row", marginLeft: 10, gap: 10, paddingVertical: 30 }}>
 
-            <Image resizeMode='center' source={{ uri: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" }} style={{ borderRadius: 50, height: 70, width: 70, borderColor: "black", borderWidth: 1 }} />
+            <Image resizeMode='center' source={{ uri: data.profile_pic?config.BASE_URL+data.profile_pic:  "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=1887&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D" }} style={{ borderRadius: 50, height: 70, width: 70, borderColor: "black", borderWidth: 1 }} />
             <View>
               <Text style={{ color: "gray", fontSize: 13, fontFamily: "Inter-Regular" }}>Welcome</Text>
               <Text style={{ color: "#28282B", fontSize: 15, fontFamily: "Inter-SemiBold" }}>{data.admin_name ? data.admin_name : ""}</Text>
@@ -105,8 +105,8 @@ const handleConfirm = async() => {
 
           <TouchableOpacity onPress={() => { navigation.navigate("InvoiceHome") }} style={{ marginLeft: 10, backgroundColor: pageName == "InvoiceNav" ? "#d4af37" : "transparent", borderRadius: 5, marginRight: 10 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12, gap: 10 }}>
-              <Image source={pageName == "InvoiceNav" ? reciptActive : reciptDeactive} style={{ height: 18, width: 18 }} />
-              <Text style={{ marginLeft: 10, fontFamily: 'Inter-Bold', fontSize: 15, color: pageName == "InvoiceNav" ? "white" : "gray" }}>Recipt</Text>
+              <Image source={pageName == "InvoiceNav" ? invoiceActive : invoiceDeactive} style={{ height: 18, width: 18 }} />
+              <Text style={{ marginLeft: 10, fontFamily: 'Inter-Bold', fontSize: 15, color: pageName == "InvoiceNav" ? "white" : "gray" }}>Invoice</Text>
             </View>
           </TouchableOpacity>
 

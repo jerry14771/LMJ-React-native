@@ -1,6 +1,6 @@
 import { View, Text, Image, TouchableOpacity, FlatList, StyleSheet, TextInput, Modal, Button, ActivityIndicator } from 'react-native';
 import React, { useState, useCallback, useEffect, useRef } from 'react';
-import Header from './Header';
+import Header from '../Common/Header';
 import { useFocusEffect } from '@react-navigation/native';
 import config from '../../config';
 import { Picker } from '@react-native-picker/picker';
