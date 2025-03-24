@@ -1,13 +1,20 @@
 import React, { useState } from "react";
 import { View, Text, TextInput, TouchableOpacity, Modal, FlatList, StyleSheet, ScrollView, TouchableWithoutFeedback } from "react-native";
 import Header from "../Common/Header";
+import config from "../../config";
+import { useNavigation } from "@react-navigation/native";
+import Toast from 'react-native-toast-message';
+
+
+
 
 const hindiMonths = ["सावन", "भादों", "आश्विन", "कार्तिक", "अग्रहायण", "पौष", "माघ", "फाल्गुन", "चैत्र", "वैशाख", "ज्येष्ठ", "आषाढ़"];
 const hindiYears = ["१४३०", "१४३१", "१४३२", "१४३३", "१४३४", "१४३५", "१४३६", "१४३७", "१४३८", "१४३९", "१४४०"];
 const hindiDates = ["१", "२", "३", "४", "५", "६", "७", "८", "९", "१०", "११", "१२", "१३", "१४", "१५", "१६", "१७", "१८", "१९", "२०", "२१", "२२", "२३", "२४", "२५", "२६", "२७", "२८", "२९", "३०", "३१"];
-const books = ["B*A", "B*K*J", "बिना पुरज़ा"];
+const books = ["B*A", "B*K*J", "Bina Purza"];
 
 const AddBandhak = () => {
+    const navigation = useNavigation();
     const [selectedBook, setSelectedBook] = useState(null);
     const [goldSelected, setGoldSelected] = useState(false);
     const [silverSelected, setSilverSelected] = useState(false);
@@ -19,11 +26,61 @@ const AddBandhak = () => {
     const [selectedYear, setSelectedYear] = useState(null);
     const [modalVisible, setModalVisible] = useState(false);
     const [modalType, setModalType] = useState("");
+    const [fatherName, setFatherName] = useState("");
+    const [mobile, setMobile] = useState("");
+    const [reciptNumber, setReciptNumber] = useState("");
+    const [name, setName] = useState("");
+    const [description, setDescription] = useState("");
 
     const openModal = (type) => {
         setModalType(type);
         setModalVisible(true);
     };
+
+    const submitData = async () => {
+        const url = `${config.BASE_URL}InsertBandhak.php`;
+        let requestBody = {
+            book_name: selectedBook,
+            name,
+            father_name: fatherName,
+            mobile_no: mobile,
+            purja_no: reciptNumber,
+            description,
+            amount_given: amountGiven,
+            hindi_date: selectedDate,
+            hindi_month: selectedMonth,
+            hindi_year: selectedYear
+        };
+        if (goldSelected) {
+            requestBody.gold_weight = goldWeight;
+        }
+
+        if (silverSelected) {
+            requestBody.silver_weight = silverWeight;
+        }
+        const response = await fetch(url, {
+
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody),
+        });
+        const result = await response.json();
+        if (result.status === 'success') {
+            navigation.navigate('BandhakHome');
+            Toast.show({
+                type: 'success',
+                text1: 'Success 🎉',
+                text2: 'Bandhak inserted successfully 👍',
+            });
+        }
+        else {
+            Toast.show({
+                type: 'error',
+                text1: 'Error',
+                text2: result.error || 'Failed to insert bandhak',
+            });
+        }
+    }
 
     const selectValue = (value) => {
         if (modalType === "date") setSelectedDate(value);
@@ -37,28 +94,35 @@ const AddBandhak = () => {
         <View style={{ flex: 1 }}>
             <Header />
             <View style={{ flex: 1 }}>
-                <ScrollView style={{ padding:15 }}>
+                <ScrollView style={{ padding: 15 }}>
                     <TouchableOpacity style={[styles.input, { justifyContent: "center" }]} onPress={() => openModal("books")}>
-                        <Text style={{ color: selectedBook === null ? "gray" : "black" }}>{selectedBook || "किताब का चयन करें"}</Text>
+                        <Text style={{ color: selectedBook === null ? "gray" : "black" }}>{selectedBook || "Choose Book"}</Text>
                     </TouchableOpacity>
 
-                    <TextInput style={styles.input} placeholder="नाम दर्ज करें" placeholderTextColor="gray" />
+                    <TextInput style={styles.input} onChangeText={(txt) => setReciptNumber(txt)} placeholder="Receipt Number" placeholderTextColor="gray" keyboardType="numeric" />
 
-                    <TextInput style={styles.input} placeholder="पुरज़ी नंबर दर्ज करें" placeholderTextColor="gray" keyboardType="numeric" />
+                    <TextInput style={styles.input} placeholder="Name" placeholderTextColor="gray" onChangeText={(txt) => setName(txt)} />
+
+                    <TextInput style={styles.input} placeholder="Father/Husband Name" placeholderTextColor="gray" onChangeText={(txt) => setFatherName(txt)} />
+
+
+                    <TextInput style={styles.input} placeholder="Mobile Number" placeholderTextColor="gray" onChangeText={(txt) => setMobile(txt)} />
+
+
 
                     <View style={styles.checkboxContainer}>
                         <TouchableOpacity style={[styles.checkbox, goldSelected && styles.ifselected]} onPress={() => setGoldSelected(!goldSelected)}>
-                            <Text style={[styles.checkboxText, goldSelected && styles.selectedCheckbox]}>सोना</Text>
+                            <Text style={[styles.checkboxText, goldSelected && styles.selectedCheckbox]}>Gold</Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={[styles.checkbox, , silverSelected && styles.ifselected]} onPress={() => setSilverSelected(!silverSelected)}>
-                            <Text style={[styles.checkboxText, silverSelected && styles.selectedCheckbox]}>चाँदी</Text>
+                            <Text style={[styles.checkboxText, silverSelected && styles.selectedCheckbox]}>Silver</Text>
                         </TouchableOpacity>
                     </View>
 
                     {goldSelected && (
                         <TextInput
                             style={styles.input}
-                            placeholder="सोने का वज़न"
+                            placeholder="Gold's Weight"
                             placeholderTextColor="gray"
                             keyboardType="numeric"
                             value={goldWeight}
@@ -68,7 +132,7 @@ const AddBandhak = () => {
                     {silverSelected && (
                         <TextInput
                             style={styles.input}
-                            placeholder="चाँदी का वज़न"
+                            placeholder="Silver's Weight"
                             placeholderTextColor="gray"
                             keyboardType="numeric"
                             value={silverWeight}
@@ -76,12 +140,12 @@ const AddBandhak = () => {
                         />
                     )}
 
-                    <TextInput style={[styles.input,styles.textArea]} placeholder="विवरण दर्ज करें" placeholderTextColor="gray" multiline />
+                    <TextInput style={[styles.input, styles.textArea]} placeholder="Description" placeholderTextColor="gray" multiline onChangeText={(txt) => setDescription(txt)} />
 
 
                     <TextInput
                         style={styles.input}
-                        placeholder="राशि दर्ज करें"
+                        placeholder="Amount Given"
                         placeholderTextColor="gray"
                         keyboardType="numeric"
                         value={amountGiven}
@@ -100,7 +164,7 @@ const AddBandhak = () => {
                         </TouchableOpacity>
                     </View>
 
-                    <TouchableOpacity style={styles.submitButton}>
+                    <TouchableOpacity style={styles.submitButton} onPress={submitData}>
                         <Text style={styles.submitText}>Save</Text>
                     </TouchableOpacity>
                 </ScrollView>
@@ -143,9 +207,9 @@ const styles = StyleSheet.create({
     checkbox: { padding: 10, borderWidth: 1, borderColor: "#d4af37", borderRadius: 10, marginRight: 10, width: "48%" },
     checkboxText: { color: "gray" },
     selectedCheckbox: { color: "white" },
-    dateContainer: { flexDirection: "row", justifyContent: "space-between", width:"100%" },
-    dateBox: { borderWidth: 1, borderColor: "#d4af37", borderRadius: 10, padding: 10, width:"30%" },
-    submitButton: { backgroundColor: "#d4af37", padding: 15, borderRadius: 10, marginTop: 20, alignItems: "center" },
+    dateContainer: { flexDirection: "row", justifyContent: "space-between", width: "100%" },
+    dateBox: { borderWidth: 1, borderColor: "#d4af37", borderRadius: 10, padding: 10, width: "30%" },
+    submitButton: { backgroundColor: "#d4af37", padding: 15, borderRadius: 10, marginVertical: 20, alignItems: "center" },
     submitText: { color: "#fff", fontSize: 16 },
     modalContainer: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)" },
     modalContent: { backgroundColor: "#fff", padding: 20, borderRadius: 10, width: "80%", maxHeight: "60%" },
@@ -166,7 +230,7 @@ const styles = StyleSheet.create({
     textArea: {
         height: 100,
         textAlignVertical: 'top',
-      },
+    },
 });
 
 export default AddBandhak;
