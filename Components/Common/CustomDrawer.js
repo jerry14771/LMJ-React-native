@@ -14,8 +14,8 @@ const CustomDrawer = (props) => {
   const invoiceDeactive = require("../../assets/invoice_sidebar_deactive.png");
   const filterActive = require("../../assets/filterWhite.png");
   const filterDeactive = require("../../assets/filter.png");
-  const udhaarActive = require("../../assets/cashback_active.png");
-  const udhaarDeactive = require("../../assets/cashback_deactive.png");
+  const bandhakActive = require("../../assets/cashback_active.png");
+  const bandhakDeactive = require("../../assets/cashback_deactive.png");
   const logoutLogo = require("../../assets/switch.png")
 
   const settingicon = require("../../assets/settings.png");
@@ -110,7 +110,6 @@ const handleConfirm = async() => {
             </View>
           </TouchableOpacity>
 
-
           <TouchableOpacity onPress={() => { navigation.navigate("FilterNav") }} style={{ marginLeft: 10, backgroundColor: pageName == "FilterNav" ? "#d4af37" : "transparent", borderRadius: 5, marginRight: 10 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12, gap: 10 }}>
               <Image source={pageName == "FilterNav" ? filterActive : filterDeactive} style={{ height: 18, width: 18 }} />
@@ -118,12 +117,10 @@ const handleConfirm = async() => {
             </View>
           </TouchableOpacity>
 
-
-
-          <TouchableOpacity onPress={() => { navigation.navigate("Udhari") }} style={{ marginLeft: 10, backgroundColor: pageName == "Udhari" ? "#d4af37" : "transparent", borderRadius: 5, marginRight: 10 }}>
+          <TouchableOpacity onPress={() => { navigation.navigate("BandhakNav", { screen: "BandhakHome" }) }} style={{ marginLeft: 10, backgroundColor: pageName == "BandhakNav" ? "#d4af37" : "transparent", borderRadius: 5, marginRight: 10 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12, gap: 10 }}>
-              <Image source={pageName == "Udhari" ? udhaarActive : udhaarDeactive} style={{ height: 18, width: 18 }} />
-              <Text style={{ marginLeft: 10, fontFamily: 'Inter-Bold', fontSize: 15, color: pageName == "Udhari" ? "white" : "gray" }}>Udhari</Text>
+              <Image source={pageName == "BandhakNav" ? bandhakActive : bandhakDeactive} style={{ height: 18, width: 18 }} />
+              <Text style={{ marginLeft: 10, fontFamily: 'Inter-Bold', fontSize: 15, color: pageName == "BandhakNav" ? "white" : "gray" }}>Bandhak</Text>
             </View>
           </TouchableOpacity>
         </View>
