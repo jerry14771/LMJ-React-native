@@ -301,9 +301,6 @@ const AddInvoice = () => {
             </TouchableOpacity>
           </View>
 
-
-
-
           <TextInput
             placeholder="Address"
             value={address}

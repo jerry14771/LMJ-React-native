@@ -3,6 +3,7 @@ import BandhakHome from './BandhakHome';
 import { createStackNavigator } from '@react-navigation/stack';
 import AddBandhak from './AddBandhak';
 import ListAllBandak from './ListAllBandak';
+import BandhakDetail from './BandhakDetail';
 
 const BandhakNav = () => {
   const BandhakStack = createStackNavigator();
@@ -12,6 +13,7 @@ const BandhakNav = () => {
       <BandhakStack.Screen name="BandhakHome" component={BandhakHome} options={{ headerShown: false }} />
       <BandhakStack.Screen name="AddBandhak" component={AddBandhak} options={{ headerShown: false }} />
       <BandhakStack.Screen name="ListAllBandak" component={ListAllBandak} options={{ headerShown: false }} />
+      <BandhakStack.Screen name="BandhakDetail" component={BandhakDetail} options={{ headerShown: false }} />
     </BandhakStack.Navigator>
   )
 }

@@ -334,9 +334,6 @@ const InvoiceDetail = ({ route }) => {
                             <Image source={shareLogo} style={{ height: 30, width: 30 }} />
                             <Text style={{ color: "black", fontSize: 18, fontWeight: "700" }}>Share</Text>
                         </TouchableOpacity>
-
-
-
                     </View>
 
                     <View style={{ alignItems: "flex-end", padding: 10 }}><Text style={{ color: "white", fontSize: 12 }} >Created on : {formatDate(invoice.createdAt)}</Text></View>

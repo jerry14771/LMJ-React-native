@@ -1,11 +1,10 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, TouchableOpacity, Modal, FlatList, StyleSheet, ScrollView, TouchableWithoutFeedback } from "react-native";
+import { View, Text, TextInput, TouchableOpacity, Modal, FlatList, StyleSheet, ScrollView, TouchableWithoutFeedback, Image } from "react-native";
 import Header from "../Common/Header";
 import config from "../../config";
-import { useNavigation } from "@react-navigation/native";
+import { useNavigation, useRoute } from "@react-navigation/native";
 import Toast from 'react-native-toast-message';
-
-
+import DatePicker from 'react-native-date-picker';
 
 
 const hindiMonths = ["सावन", "भादों", "आश्विन", "कार्तिक", "अग्रहायण", "पौष", "माघ", "फाल्गुन", "चैत्र", "वैशाख", "ज्येष्ठ", "आषाढ़"];
@@ -31,6 +30,9 @@ const AddBandhak = () => {
     const [reciptNumber, setReciptNumber] = useState("");
     const [name, setName] = useState("");
     const [description, setDescription] = useState("");
+    const [englishDate, setEnglishDate] = useState(null);
+    const [isEnglishDateOpen, setEnglishDateOpen] = useState(false);
+    const calanderLogo = require('../../assets/calendar.png');
 
     const openModal = (type) => {
         setModalType(type);
@@ -49,7 +51,8 @@ const AddBandhak = () => {
             amount_given: amountGiven,
             hindi_date: selectedDate,
             hindi_month: selectedMonth,
-            hindi_year: selectedYear
+            hindi_year: selectedYear,
+            englishDate
         };
         if (goldSelected) {
             requestBody.gold_weight = goldWeight;
@@ -59,7 +62,6 @@ const AddBandhak = () => {
             requestBody.silver_weight = silverWeight;
         }
         const response = await fetch(url, {
-
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(requestBody),
@@ -141,6 +143,35 @@ const AddBandhak = () => {
                     )}
 
                     <TextInput style={[styles.input, styles.textArea]} placeholder="Description" placeholderTextColor="gray" multiline onChangeText={(txt) => setDescription(txt)} />
+
+                    <TouchableOpacity onPress={() => setEnglishDateOpen(true)} style={{ backgroundColor: "#f0f0f0", padding: 10, marginVertical: 10, borderRadius: 7, borderColor: "#d4af37", borderWidth: 1 }}>
+                        <View style={{ flexDirection: "row", justifyContent: "space-between" }} >
+                            {englishDate ? <Text style={{ color: "black", fontWeight: "600" }}>{englishDate.toLocaleDateString("en-GB", {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric"
+                            })}</Text> : <Text style={{ color: "gray" }}>Eg. 20/12/2024</Text>}
+                            <Image source={calanderLogo} style={{ height: 25, width: 25 }} />
+                        </View>
+                    </TouchableOpacity>
+
+                    <DatePicker
+                        modal
+                        title={"Select Order Date"}
+                        theme='dark'
+                        mode='date'
+                        open={isEnglishDateOpen}
+                        date={englishDate || new Date()}
+                        onConfirm={(date) => {
+                            setEnglishDateOpen(false);
+                            setEnglishDate(date);
+                        }}
+                        onCancel={() => {
+                            setEnglishDateOpen(false);
+                        }}
+                    />
+
+
 
 
                     <TextInput

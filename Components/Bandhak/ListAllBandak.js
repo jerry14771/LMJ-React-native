@@ -2,6 +2,9 @@ import React, { useEffect, useState } from "react";
 import { View, Text, FlatList, ActivityIndicator, StyleSheet, TouchableOpacity } from "react-native";
 import config from "../../config";
 import Header from "../Common/Header";
+import ListComponent from "./ListComponent";
+import { useFocusEffect } from '@react-navigation/native';
+
 
 const ListAllBandak = () => {
   const [data, setData] = useState([]);
@@ -16,7 +19,6 @@ const ListAllBandak = () => {
         body: JSON.stringify(),
       });
       const result = await response.json();
-      console.log(result)
       if (result.status === "success") {
         setData(result.data);
       } else {
@@ -29,9 +31,11 @@ const ListAllBandak = () => {
     }
   };
 
-  useEffect(() => {
-    fetchData();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchData();
+    }, [])
+  );
 
   if (loading) {
     return (
@@ -45,41 +49,17 @@ const ListAllBandak = () => {
     <View style={styles.container}>
       <Header />
       {data.length === 0 ? (
-        <Text style={styles.noData}>कोई रिकॉर्ड नहीं मिला</Text>
+        <Text style={styles.noData}>No Record Found</Text>
       ) : (
         <FlatList
           data={data}
           keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => (
-            <View style={styles.card}>
-              <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-                <Text style={styles.title}>{item.name}</Text>
-                <View style={{ padding: 10, backgroundColor: "red", borderRadius: 30 }}><Text style={{ color: "white", fontWeight: "800", fontSize: 16 }}>{item.purja_no}</Text></View>
-              </View>
-              <Text style={styles.titleSmall}>{`(` + item.father_name + `)`}</Text>
-              <Text style={styles.text}>📖 {item.book_name}</Text>
-              <Text style={styles.text}>📞 {item.mobile_no}</Text>
-              <Text style={styles.text}>📝 Description: {item.description}</Text>
-              {item.gold_weight && <Text style={styles.text}>🪙 Gold: {item.gold_weight} gm</Text>}
-              {item.silver_weight && <Text style={styles.text}>💿 Silver: {item.silver_weight} gm</Text>}
-              <Text style={styles.text}>💰 Amount: ₹{item.amount_given}</Text>
-              <Text style={styles.text}>📅 {item.hindi_date} {item.hindi_month} {item.hindi_year}</Text>
-              <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-                <View style={{ backgroundColor:"lightblue", paddingHorizontal:8, paddingVertical:5, borderRadius:5 }}><Text style={[styles.text]}>Status toggler</Text></View>
-                <View style={{ flexDirection: "row", gap: 10 }}>
-                  <Text style={styles.text}>Edit</Text>
-                  <Text style={styles.text}>Delete</Text>
-                </View>
-
-              </View>
-            </View>
+          renderItem={({ item }) => (            
+            <ListComponent id={item.id} purzinumber={item.purja_no} name={item.name} fatherName={item.father_name} mobile={item.mobile_no} englishDate={item.englishDate} goldWeight={item.gold_weight} silverWeight={item.silver_weight} />
           )}
         />
       )}
 
-      <TouchableOpacity style={styles.refreshButton} onPress={fetchData}>
-        <Text style={styles.refreshText}>🔄 Refresh</Text>
-      </TouchableOpacity>
     </View>
   );
 };
