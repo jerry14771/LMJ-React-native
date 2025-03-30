@@ -53,7 +53,6 @@ const BandhakDetail = () => {
       body: JSON.stringify({ id, currentStatus: newStatus }),
     });
     const result = await response.json();
-    console.log(result);
     if (result.status === "success") {
       setData(result.data[0]);
       setCurrentStatusIndex(result.data[0].status == "Pending" ? 0 : 1)
@@ -124,7 +123,7 @@ const BandhakDetail = () => {
         Toast.show({
             type: 'success',
             text1: 'Success 🎉',
-            text2: `Deleted Bandhak successfully 👍`, // Or use name if available
+            text2: `Deleted Bandhak successfully 👍`,
         });
         navigation.navigate('ListAllBandak');
     } else {
@@ -137,8 +136,44 @@ const BandhakDetail = () => {
     }
 };
 
+const formatDate = (dateString) => {
+  if (!dateString) return ""; 
+
+  const date = new Date(dateString);
+  return date.toLocaleDateString("en-GB", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+};
+
+const formatTimestamp = (timestamp) => {
+  if (!timestamp || typeof timestamp !== "string") return "";
+
+  const [datePart, timePart] = timestamp.split(" "); 
+  if (!datePart || !timePart) return ""; 
+
+  const [year, month, day] = datePart.split("-"); 
+  let [hour, minute] = timePart.split(":"); 
+
+  const monthNames = [
+    "January", "February", "March", "April", "May", "June", 
+    "July", "August", "September", "October", "November", "December"
+  ];
+  const monthName = monthNames[parseInt(month, 10) - 1];
+
+  hour = parseInt(hour, 10);
+  const period = hour >= 12 ? "PM" : "AM";
+  hour = hour % 12 || 12;
+  const formattedHour = hour.toString().padStart(2, "0");
+
+  return `${day} ${monthName} ${year} (${formattedHour}:${minute} ${period})`;
+};
+
+
+
   const handleEdit = () => {
-    console.log('Editing record with ID:', id);
+    navigation.navigate('AddBandhak',{data});
   };
 
   if (!data) {
@@ -168,17 +203,21 @@ const BandhakDetail = () => {
               <Text style={styles.value}>{data.purja_no ?? ""}</Text>
             </View>
             <View style={styles.descriptionBox}>
+              <Text style={styles.label}>Address:</Text>
+              <Text style={styles.description}>{data.address ?? ""}</Text>
+            </View>
+            <View style={styles.descriptionBox}>
               <Text style={styles.label}>Description:</Text>
               <Text style={styles.description}>{data.description ?? ""}</Text>
             </View>
             <View style={styles.rowContainer}>
               <View style={styles.sectionHalf}>
                 <Text style={styles.label}>🥇 Gold:</Text>
-                <Text style={styles.value}>{data.gold_weight ?? ""}g</Text>
+                <Text style={styles.value}>{data.gold_weight? data.gold_weight+' g': "NA"}</Text>
               </View>
               <View style={styles.sectionHalf}>
                 <Text style={styles.label}>🥈 Silver:</Text>
-                <Text style={styles.value}>{data.silver_weight ?? ""}g</Text>
+                <Text style={styles.value}>{data.silver_weight ?data.silver_weight +' g': "NA"}</Text>
               </View>
             </View>
             <View style={styles.section}>
@@ -192,12 +231,12 @@ const BandhakDetail = () => {
               </View>
               <View style={styles.sectionHalf}>
                 <Text style={styles.label}>📅 English Date:</Text>
-                <Text style={styles.value}>{data.englishDate ?? ""}</Text>
+                <Text style={styles.value}>{data.englishDate ?formatDate(data.englishDate): ""}</Text>
               </View>
             </View>
             <View style={styles.section}>
               <Text style={styles.label}>🕒 Created At:</Text>
-              <Text style={styles.value}>{data.created_at ?? ""}</Text>
+              <Text style={styles.value}>{data.created_at? formatTimestamp(data.created_at): ""}</Text>
             </View>
             <View style={styles.buttonContainer}>
               <TouchableOpacity style={styles.editButton} onPress={handleEdit}>

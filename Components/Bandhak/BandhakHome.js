@@ -1,27 +1,40 @@
-import { View, Text, Image, TouchableOpacity, StatusBar, StyleSheet } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StatusBar, StyleSheet, FlatList } from 'react-native';
 import React, { useState, useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import config from '../../config';
 import Header from '../Common/Header';
 import LottieView from 'lottie-react-native';
+import { useFocusEffect } from '@react-navigation/native';
+import ListComponent from './ListComponent';
 
-
-const TriangleCorner = ({ text }) => {
-    return (
-        <View style={styles.ribbonContainer}>
-            <View style={styles.triangleCorner} />
-            <Text style={styles.ribbonText}>{text}</Text>
-        </View>
-    );
-};
 
 const BandhakHome = () => {
     const navigation = useNavigation();
     const goldloan = require('../../assets/goldloan.png');
     const document = require('../../assets/document.png');
-    const pricelist = require('../../assets/price_list.png');
+    const [data, setData] = useState([]);
 
-   
+    const fetchData = async () => {
+          const url = `${config.BASE_URL}getTodaysBandhak.php`;
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(),
+          });
+          const result = await response.json();
+          if (result.status === "success") {
+            setData(result.data);
+          } else {
+            setData([]);
+          }
+      };
+
+       useFocusEffect(
+          React.useCallback(() => {
+            fetchData();
+          }, [])
+        );
+    
 
     return (
         <View style={styles.container}>
@@ -30,12 +43,11 @@ const BandhakHome = () => {
             <View style={styles.buttonContainer}>
                 <TouchableOpacity
                     style={styles.touchable}
-                    onPress={() => navigation.navigate("AddBandhak")}
+                    onPress={() => navigation.navigate("AddBandhak", { data: null })}
                 >
                     <Image source={goldloan} style={styles.buttonImage} />
                     <Text style={styles.buttonText}>Create Bandhak</Text>
                 </TouchableOpacity>
-
 
                 <TouchableOpacity
                     style={styles.touchable}
@@ -44,8 +56,19 @@ const BandhakHome = () => {
                     <Image source={document} style={styles.buttonImage} />
                     <Text style={styles.buttonText}>All Bandhak</Text>
                 </TouchableOpacity>
-
             </View>
+
+            {data.length === 0 ? (
+                <Text style={styles.noData}>No Record Found</Text>
+            ) : (
+                <FlatList
+                    data={data}
+                    keyExtractor={(item) => item.id.toString()}
+                    renderItem={({ item }) => (
+                        <ListComponent id={item.id} purzinumber={item.purja_no} name={item.name} fatherName={item.father_name} mobile={item.mobile_no} englishDate={item.englishDate} goldWeight={item.gold_weight} silverWeight={item.silver_weight} />
+                    )}
+                />
+            )}
         </View>
     );
 };
@@ -187,12 +210,18 @@ const styles = StyleSheet.create({
     ribbonText: {
         position: 'absolute',
         left: 5,
-        top: 5, 
+        top: 5,
         fontSize: 15,
         color: '#fff',
         fontWeight: 'bold',
         textAlign: 'center',
     },
+    noData: {
+        textAlign: "center",
+        fontSize: 18,
+        color: "gray",
+        marginTop: 20,
+      },
 
 });
 
