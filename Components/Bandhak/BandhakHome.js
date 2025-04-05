@@ -74,7 +74,7 @@ const BandhakHome = () => {
                     data={data}
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={({ item }) => (
-                        <ListComponent id={item.id} purzinumber={item.purja_no} name={item.name} fatherName={item.father_name} mobile={item.mobile_no} englishDate={item.englishDate} goldWeight={item.gold_weight} silverWeight={item.silver_weight} />
+                        <ListComponent book_name={item.book_name} id={item.id} purzinumber={item.purja_no} name={item.name} amount={item.amount_given} address={item.address} englishDate={item.englishDate} goldWeight={item.gold_weight} silverWeight={item.silver_weight} status={item.status} />
                     )}
                 />
             )}

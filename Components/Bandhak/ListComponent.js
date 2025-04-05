@@ -2,7 +2,7 @@ import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import React from 'react';
 import { useNavigation } from '@react-navigation/native';
 
-const ListComponent = ({ purzinumber ,id, name, fatherName, mobile, englishDate, goldWeight, silverWeight }) => {
+const ListComponent = ({ purzinumber ,id, name, address, amount, englishDate, goldWeight, silverWeight, status, book_name }) => {
     const navigation = useNavigation();
 
     const formatDate = (dateString) => {
@@ -15,11 +15,11 @@ const ListComponent = ({ purzinumber ,id, name, fatherName, mobile, englishDate,
   return (
     <TouchableOpacity style={styles.container} onPress={()=>navigation.navigate('BandhakDetail',{id})}>
       <View style={styles.header}>
-        <View style={{ backgroundColor:"red", padding:3, borderRadius:5 }}><Text style={styles.id}>{purzinumber}</Text></View>
+        <View style={{ backgroundColor: status === "Rakhti" ? "red" : "green" , padding:3, borderRadius:5 }}><Text style={styles.id}>{purzinumber}</Text></View>
         <Text style={styles.date}>📅 {formatDate(englishDate)}</Text>
       </View>
-      <Text style={styles.name}>👤 {name} ({fatherName})</Text>
-      <Text style={styles.mobile}>📞 {mobile}</Text>
+      <Text style={styles.name}>👤 {name} ({address})</Text>
+      <Text style={styles.mobile}>💰 {amount} {'('+book_name+')'}</Text>
       <View style={styles.weights}>
         <Text style={styles.gold}>🥇 {goldWeight}g</Text>
         <Text style={styles.silver}>🥈 {silverWeight}g</Text>

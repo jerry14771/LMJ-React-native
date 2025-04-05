@@ -4,19 +4,33 @@ import CheckBox from "@react-native-community/checkbox";
 import HeaderWithCollapse from '../Common/HeaderWithCollapse';
 import ListComponent from './ListComponent';
 import LottieView from 'lottie-react-native';
+import config from '../../config';
 
 const AdvanceFilter = () => {
-    const books = ["B*A", "B*K*J", "Bina Purza"];
+    const books = ["B*A", "B*K*J", "Bina Purza", "B*K"];
     const [data, setData] = useState([]);
     const [selectedBook, setSelectedBook] = useState(null);
     const [name, setName] = useState(null);
     const [fatherName, setfatherName] = useState(null);
+    const [address, setAddress] = useState(null);
+    const [minamount, setMinAmount] = useState(null);
+    const [maxamount, setMaxAmount] = useState(null);
+    const [status, setStatus] = useState(null);
+    const statuses = ["Pending", "Completed"];
+
+
+    const [goldMinWeight, setGoldMinWeight] = useState("");
+    const [goldMaxWeight, setGoldMaxWeight] = useState("");
+    const [silverMinWeight, setSilverMinWeight] = useState("");
+    const [silverMaxWeight, setSilverMaxWeight] = useState("");
+    const [isVisible, setIsVisible] = useState(true);
+
     const [modalVisible, setModalVisible] = useState(false);
     const [modalType, setModalType] = useState("");
-    const [metal, setMetal] = useState(false);
+    const [isGoldSelected, setIsGoldSelected] = useState(false);
+    const [isSilverSelected, setIsSilverSelected] = useState(false);
     const GoldLogo = require("../../assets/gold_bar_shie.png");
     const SilverLogo = require("../../assets/silver_compressed.png");
-    const [isVisible, setIsVisible] = useState(true);
     const screenHeight = Dimensions.get("window").height * 0.9;
     const heightAnim = useRef(new Animated.Value(screenHeight)).current;
     const opacityAnim = useRef(new Animated.Value(1)).current;
@@ -40,6 +54,7 @@ const AdvanceFilter = () => {
 
     const selectValue = (value) => {
         if (modalType === "books") setSelectedBook(value);
+        else if (modalType === "status") setStatus(value);
         setModalVisible(false);
     };
 
@@ -70,32 +85,28 @@ const AdvanceFilter = () => {
         toggleVisible();
         rotateAnimation();
         hitSearchAPI();
-      }
+    }
 
 
-      const hitSearchAPI = async () => {
-          console.log(metal, amountmax);
-          const url = `${config.BASE_URL}advanceSearchBandhak.php`;
-          const response = await fetch(url, {
+    const hitSearchAPI = async () => {
+        
+        const url = `${config.BASE_URL}advanceSearchBandhak.php`;
+        const response = await fetch(url, {
             method: 'POST',
             headers: {
-              'Content-Type': 'application/json',
+                'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ selectedBook }),
-          });
-          const result = await response.json();
-          if (result.status == "success") {
+            body: JSON.stringify({ selectedBook, name, fatherName, address, minamount, maxamount, goldMinWeight, goldMaxWeight, silverMaxWeight, silverMinWeight,isGoldSelected,isSilverSelected, status }),
+        });
+        const result = await response.json();
+        if (result.status == "success") {
             setData(result.data);
-          }
-          else {
-            setData(null);
-      
-          }
-      
         }
+        else {
+            setData(null);
 
-
-
+        }
+    }
 
     return (
         <View style={styles.container}>
@@ -119,53 +130,59 @@ const AdvanceFilter = () => {
                         </TouchableOpacity>
                     </View>
                     <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-                        <TextInput placeholder='Name' style={{ backgroundColor: "#e6e3e1", width: "70%", paddingHorizontal: 5, paddingVertical: 0, borderRadius: 5 }} placeholderTextColor={"gray"} onChangeText={(txt)=>setName(txt)} />
-                        <TouchableOpacity style={{ padding: 5, backgroundColor: "red", borderRadius: 5 }} >
+                        <TextInput placeholder='Name' style={{ backgroundColor: "#e6e3e1", width: "70%", paddingHorizontal: 5, paddingVertical: 0, borderRadius: 5, color:"black" }} placeholderTextColor={"gray"} onChangeText={(txt) => setName(txt)} value={name} />
+                        <TouchableOpacity style={{ padding: 5, backgroundColor: "red", borderRadius: 5 }}  onPress={()=>setName('')}>
                             <Text style={{ color: "white" }}>Clear</Text>
                         </TouchableOpacity>
                     </View>
                     <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-                        <TextInput placeholder='Father/Husband Name' style={{ backgroundColor: "#e6e3e1", width: "70%", paddingHorizontal: 5, paddingVertical: 0, borderRadius: 5 }} placeholderTextColor={"gray"} onChangeText={(txt)=>setfatherName(txt)} />
-                        <TouchableOpacity style={{ padding: 5, backgroundColor: "red", borderRadius: 5 }} >
+                        <TextInput placeholder='Father/Husband Name' style={{ backgroundColor: "#e6e3e1", width: "70%", paddingHorizontal: 5, paddingVertical: 0, borderRadius: 5,color:"black" }} placeholderTextColor={"gray"} onChangeText={(txt) => setfatherName(txt)} value={fatherName}/>
+                        <TouchableOpacity style={{ padding: 5, backgroundColor: "red", borderRadius: 5 }} onPress={()=>setfatherName('')}>
                             <Text style={{ color: "white" }}>Clear</Text>
                         </TouchableOpacity>
                     </View>
                     <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-                        <TextInput placeholder='Address' style={{ backgroundColor: "#e6e3e1", width: "70%", paddingHorizontal: 5, paddingVertical: 0, borderRadius: 5 }} placeholderTextColor={"gray"} />
-                        <TouchableOpacity style={{ padding: 5, backgroundColor: "red", borderRadius: 5 }} >
+                        <TextInput placeholder='Address' style={{ color:"black",backgroundColor: "#e6e3e1", width: "70%", paddingHorizontal: 5, paddingVertical: 0, borderRadius: 5 }} placeholderTextColor={"gray"} onChangeText={(txt) => setAddress(txt)} value={address} />
+                        <TouchableOpacity style={{ padding: 5, backgroundColor: "red", borderRadius: 5 }} onPress={()=>setAddress('')}>
                             <Text style={{ color: "white" }}>Clear</Text>
                         </TouchableOpacity>
                     </View>
                     <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-                        <TextInput placeholder='Amount' style={{ backgroundColor: "#e6e3e1", width: "70%", paddingHorizontal: 5, paddingVertical: 0, borderRadius: 5 }} placeholderTextColor={"gray"} />
-                        <TouchableOpacity style={{ padding: 5, backgroundColor: "red", borderRadius: 5 }} >
-                            <Text style={{ color: "white" }}>Clear</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-
                         <View style={{ flexDirection: "row", justifyContent: "space-between", width: "70%" }}>
+
+                            <TextInput placeholder='Min Amount' style={{color:"black", backgroundColor: "#e6e3e1", width: "45%", paddingHorizontal: 5, paddingVertical: 0, borderRadius: 5 }} placeholderTextColor={"gray"} onChangeText={(txt) => setMinAmount(txt)} keyboardType='numeric' value={minamount} />
+
+                            <TextInput placeholder='Max Amount' style={{color:"black", backgroundColor: "#e6e3e1", width: "45%", paddingHorizontal: 5, paddingVertical: 0, borderRadius: 5 }} placeholderTextColor={"gray"} onChangeText={(txt) => setMaxAmount(txt)} keyboardType='numeric' value={maxamount} />
+                        </View>
+                        <TouchableOpacity style={{ padding: 5, backgroundColor: "red", borderRadius: 5 }} onPress={()=>{setMinAmount(null);setMaxAmount(null)}}>
+                            <Text style={{ color: "white" }}>Clear</Text>
+                        </TouchableOpacity>
+                    </View>
+
+                    <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                        <View style={{ flexDirection: "row", justifyContent: "space-between", width: "70%" }}>
+                            {/* Gold */}
                             <TouchableOpacity
                                 style={{ flexDirection: "row", alignItems: "center" }}
-                                onPress={() => setMetal(metal === "Gold" ? "" : "Gold")}
+                                onPress={() => setIsGoldSelected(!isGoldSelected)}
                             >
                                 <CheckBox
-                                    value={metal === "Gold"}
-                                    onValueChange={() => setMetal(metal === "Gold" ? "" : "Gold")}
+                                    value={isGoldSelected}
+                                    onValueChange={() => setIsGoldSelected(!isGoldSelected)}
                                     tintColors={{ false: "black" }}
                                 />
                                 <Image source={GoldLogo} style={{ height: 22, width: 25 }} />
                                 <Text style={{ color: "black", fontSize: 13 }}>Gold</Text>
                             </TouchableOpacity>
 
+                            {/* Silver */}
                             <TouchableOpacity
                                 style={{ flexDirection: "row", alignItems: "center" }}
-                                onPress={() => setMetal(metal === "Silver" ? "" : "Silver")}
+                                onPress={() => setIsSilverSelected(!isSilverSelected)}
                             >
                                 <CheckBox
-                                    value={metal === "Silver"}
-                                    onValueChange={() => setMetal(metal === "Silver" ? "" : "Silver")}
+                                    value={isSilverSelected}
+                                    onValueChange={() => setIsSilverSelected(!isSilverSelected)}
                                     tintColors={{ false: "black" }}
                                 />
                                 <Image source={SilverLogo} style={{ height: 22, width: 22 }} />
@@ -173,22 +190,90 @@ const AdvanceFilter = () => {
                             </TouchableOpacity>
                         </View>
 
-
-                        <TouchableOpacity style={{ padding: 5, backgroundColor: "red", borderRadius: 5 }} >
+                        {/* Clear Button */}
+                        <TouchableOpacity
+                            style={{ padding: 5, backgroundColor: "red", borderRadius: 5 }}
+                            onPress={() => {
+                                setIsGoldSelected(false);
+                                setIsSilverSelected(false);
+                                setGoldMinWeight("");
+                                setGoldMaxWeight("");
+                                setSilverMinWeight("");
+                                setSilverMaxWeight("");
+                            }}
+                        >
                             <Text style={{ color: "white" }}>Clear</Text>
                         </TouchableOpacity>
                     </View>
 
+                    {/* Gold Inputs */}
+                    {isGoldSelected && (
+                        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                            <View style={{ flexDirection: "row", justifyContent: "space-between", width: "70%" }}>
+                                <TextInput
+                                    placeholder="Min Gold"
+                                    style={styles.inputStyle}
+                                    placeholderTextColor="gray"
+                                    value={goldMinWeight}
+                                    onChangeText={setGoldMinWeight}
+                                    keyboardType='numeric'
 
-                    <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
-                        <View style={{ flexDirection: "row", justifyContent: "space-between", width: "70%" }}>
-                            <TextInput placeholder='Min Weight' style={{ backgroundColor: "#e6e3e1", width: "45%", paddingHorizontal: 5, paddingVertical: 0, borderRadius: 5 }} placeholderTextColor={"gray"} />
-                            <TextInput placeholder='Max Weight' style={{ backgroundColor: "#e6e3e1", width: "45%", paddingHorizontal: 5, paddingVertical: 0, borderRadius: 5 }} placeholderTextColor={"gray"} />
+                                />
+                                <TextInput
+                                    placeholder="Max Gold"
+                                    style={styles.inputStyle}
+                                    placeholderTextColor="gray"
+                                    value={goldMaxWeight}
+                                    onChangeText={setGoldMaxWeight}
+                                    keyboardType='numeric'
+                                />
+                            </View>
+                            <TouchableOpacity onPress={() => { setGoldMaxWeight(null); setGoldMinWeight(null); }} style={{ padding: 5, backgroundColor: "red", borderRadius: 5 }} >
+                                <Text style={{ color: "white" }}>Clear</Text>
+                            </TouchableOpacity>
                         </View>
-                        <TouchableOpacity style={{ padding: 5, backgroundColor: "red", borderRadius: 5 }} >
-                            <Text style={{ color: "white" }}>Clear</Text>
-                        </TouchableOpacity>
-                    </View>
+                    )}
+
+                    {/* Silver Inputs */}
+                    {isSilverSelected && (
+                        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+                            <View style={{ flexDirection: "row", justifyContent: "space-between", width: "70%" }}>
+                                <TextInput
+                                    placeholder="Min Silver"
+                                    style={styles.inputStyle}
+                                    placeholderTextColor="gray"
+                                    value={silverMinWeight}
+                                    onChangeText={setSilverMinWeight}
+                                    keyboardType='numeric'
+
+                                />
+                                <TextInput
+                                    placeholder="Max Silver"
+                                    style={styles.inputStyle}
+                                    placeholderTextColor="gray"
+                                    value={silverMaxWeight}
+                                    onChangeText={setSilverMaxWeight}
+                                    keyboardType='numeric'
+
+                                />
+                            </View>
+                            <TouchableOpacity onPress={() => { setSilverMaxWeight(null); setSilverMinWeight(null); }} style={{ padding: 5, backgroundColor: "red", borderRadius: 5 }} >
+                                <Text style={{ color: "white" }}>Clear</Text>
+                            </TouchableOpacity>
+                        </View>
+                    )}
+
+<View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+    <TouchableOpacity
+        style={[styles.input, { justifyContent: "center", width: "70%", backgroundColor: "#e6e3e1", paddingHorizontal: 5, borderRadius: 5 }]}
+        onPress={() => openModal("status")}
+    >
+        <Text style={{ color: status === null ? "gray" : "black" }}>{status || "Choose Status"}</Text>
+    </TouchableOpacity>
+    <TouchableOpacity style={{ padding: 5, backgroundColor: "red", borderRadius: 5 }} onPress={() => setStatus(null)}>
+        <Text style={{ color: "white" }}>Clear</Text>
+    </TouchableOpacity>
+</View>
 
 
                     <View style={{ alignItems: "flex-start", marginTop: 15 }}>
@@ -198,10 +283,6 @@ const AdvanceFilter = () => {
                 </View>
             </Animated.View>
 
-
-
-
-
             {
                 data && data.length == 0 ? (<View style={{ justifyContent: "center", alignItems: "center" }}>
                     <View style={{ height: 400, aspectRatio: 1 }}>
@@ -210,22 +291,13 @@ const AdvanceFilter = () => {
                 </View>) :
                     (<FlatList
                         data={data}
-                        renderItem={ListComponent}
+                        renderItem={({ item, index }) => (
+                            <ListComponent book_name={item.book_name} id={item.id} purzinumber={item.purja_no} name={item.name} address={item.address} amount={item.amount_given} englishDate={item.englishDate} goldWeight={item.gold_weight} silverWeight={item.silver_weight} status={item.status} />
+                          )}
                         keyExtractor={(item) => item.id.toString()}
                     />)
 
             }
-
-
-
-
-
-
-
-
-
-
-
 
             <Modal visible={modalVisible} transparent >
                 <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
@@ -233,7 +305,7 @@ const AdvanceFilter = () => {
                         <TouchableWithoutFeedback>
                             <View style={styles.modalContent}>
                                 <FlatList
-                                    data={books}
+                                        data={modalType === "books" ? books : statuses}
                                     keyExtractor={(item) => item.toString()}
                                     renderItem={({ item }) => (
                                         <TouchableOpacity style={styles.modalItem} onPress={() => selectValue(item.toString())}>
@@ -273,6 +345,14 @@ const styles = StyleSheet.create({
     modalContainer: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "rgba(0,0,0,0.5)" },
     modalContent: { backgroundColor: "#fff", padding: 20, borderRadius: 10, width: "80%", maxHeight: "60%" },
     modalItem: { padding: 10, borderBottomWidth: 1, borderBottomColor: "#d4af37" },
+    inputStyle: {
+        backgroundColor: "#e6e3e1",
+        width: "45%",
+        paddingHorizontal: 5,
+        paddingVertical: 0,
+        borderRadius: 5,
+        color: "black"
+    }
 
 });
 

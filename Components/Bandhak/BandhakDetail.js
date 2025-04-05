@@ -16,7 +16,7 @@ const BandhakDetail = () => {
   const id = route.params.id;
   const navigation = useNavigation();
   const [data, setData] = useState(null);
-  const statuses = ['Pending', 'Completed'];
+  const statuses = ['Rakhti', 'Chutti'];
   const [currentStatusIndex, setCurrentStatusIndex] = useState(0);
   const translateX = useSharedValue(0);
   const [deleteConfirmationVisible, setDeleteConfirmationVisible] = useState(false);
@@ -32,7 +32,7 @@ const BandhakDetail = () => {
     const result = await response.json();
     if (result.status === "success") {
       setData(result.data[0]);
-      setCurrentStatusIndex(result.data[0].status == "Pending" ? 0 : 1)
+      setCurrentStatusIndex(result.data[0].status == "Rakhti" ? 0 : 1)
     }
   }
 
@@ -41,7 +41,7 @@ const BandhakDetail = () => {
   }, [])
 
   const statusColors = {
-    Pending: '#FFA500', Completed: '#32CD32'
+    Rakhti: '#FFA500', Chutti: '#32CD32'
   };
 
   const callStatusChangeAPI = async (newStatus, id) => {
@@ -54,7 +54,7 @@ const BandhakDetail = () => {
     const result = await response.json();
     if (result.status === "success") {
       setData(result.data[0]);
-      setCurrentStatusIndex(result.data[0].status == "Pending" ? 0 : 1)
+      setCurrentStatusIndex(result.data[0].status == "Rakhti" ? 0 : 1)
     }
   }
 
