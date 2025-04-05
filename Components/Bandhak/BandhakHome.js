@@ -12,6 +12,7 @@ const BandhakHome = () => {
     const navigation = useNavigation();
     const goldloan = require('../../assets/goldloan.png');
     const document = require('../../assets/document.png');
+    const advanceSearchImg = require('../../assets/advanced-search.png');
     const [data, setData] = useState([]);
 
     const fetchData = async () => {
@@ -56,6 +57,14 @@ const BandhakHome = () => {
                     <Image source={document} style={styles.buttonImage} />
                     <Text style={styles.buttonText}>All Bandhak</Text>
                 </TouchableOpacity>
+
+                <TouchableOpacity
+                    style={styles.touchable}
+                    onPress={() => navigation.navigate("AdvanceFilter")}
+                >
+                    <Image source={advanceSearchImg} style={styles.buttonImage} />
+                    <Text style={styles.buttonText}>Filter</Text>
+                </TouchableOpacity>
             </View>
 
             {data.length === 0 ? (
@@ -86,7 +95,7 @@ const styles = StyleSheet.create({
         justifyContent: 'space-evenly',
     },
     touchable: {
-        width: "45%",
+        width: "30%",
         backgroundColor: "white",
         borderRadius: 5,
         shadowColor: "red",

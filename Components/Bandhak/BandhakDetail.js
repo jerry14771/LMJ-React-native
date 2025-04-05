@@ -20,7 +20,7 @@ const BandhakDetail = () => {
   const [currentStatusIndex, setCurrentStatusIndex] = useState(0);
   const translateX = useSharedValue(0);
   const [deleteConfirmationVisible, setDeleteConfirmationVisible] = useState(false);
-  
+
 
   const fetchBandhakDetail = async () => {
     const url = `${config.BASE_URL}fetchBandhak.php`;
@@ -30,7 +30,6 @@ const BandhakDetail = () => {
       body: JSON.stringify({ id }),
     });
     const result = await response.json();
-    console.log(result);
     if (result.status === "success") {
       setData(result.data[0]);
       setCurrentStatusIndex(result.data[0].status == "Pending" ? 0 : 1)
@@ -107,77 +106,74 @@ const BandhakDetail = () => {
 
   const deleteCompleteRecord = () => {
     setDeleteConfirmationVisible(true);
-};
+  };
 
 
   const handleDelete = async () => {
     const url = `${config.BASE_URL}deleteBandhak.php`;
     const response = await fetch(url, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id }),
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ id }),
     });
     const result = await response.json();
     if (result.status === "success") {
       setDeleteConfirmationVisible(false);
-        Toast.show({
-            type: 'success',
-            text1: 'Success 🎉',
-            text2: `Deleted Bandhak successfully 👍`,
-        });
-        navigation.navigate('ListAllBandak');
+      Toast.show({
+        type: 'success',
+        text1: 'Success 🎉',
+        text2: `Deleted Bandhak successfully 👍`,
+      });
+      navigation.navigate('ListAllBandak');
     } else {
       setDeleteConfirmationVisible(false);
-        Toast.show({
-            type: 'error',
-            text1: 'Error ❌',
-            text2: result.message || 'Failed to delete Bandhak',
-        });
+      Toast.show({
+        type: 'error',
+        text1: 'Error ❌',
+        text2: result.message || 'Failed to delete Bandhak',
+      });
     }
-};
+  };
 
-const formatDate = (dateString) => {
-  if (!dateString) return ""; 
+  const formatDate = (dateString) => {
+    if (!dateString) return "";
 
-  const date = new Date(dateString);
-  return date.toLocaleDateString("en-GB", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
-};
+    const date = new Date(dateString);
+    return date.toLocaleDateString("en-GB", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  };
 
-const formatTimestamp = (timestamp) => {
-  if (!timestamp || typeof timestamp !== "string") return "";
+  const formatTimestamp = (timestamp) => {
+    if (!timestamp || typeof timestamp !== "string") return "";
 
-  const [datePart, timePart] = timestamp.split(" "); 
-  if (!datePart || !timePart) return ""; 
+    const [datePart, timePart] = timestamp.split(" ");
+    if (!datePart || !timePart) return "";
 
-  const [year, month, day] = datePart.split("-"); 
-  let [hour, minute] = timePart.split(":"); 
+    const [year, month, day] = datePart.split("-");
+    let [hour, minute] = timePart.split(":");
 
-  const monthNames = [
-    "January", "February", "March", "April", "May", "June", 
-    "July", "August", "September", "October", "November", "December"
-  ];
-  const monthName = monthNames[parseInt(month, 10) - 1];
+    const monthNames = [
+      "January", "February", "March", "April", "May", "June",
+      "July", "August", "September", "October", "November", "December"
+    ];
+    const monthName = monthNames[parseInt(month, 10) - 1];
 
-  hour = parseInt(hour, 10);
-  const period = hour >= 12 ? "PM" : "AM";
-  hour = hour % 12 || 12;
-  const formattedHour = hour.toString().padStart(2, "0");
+    hour = parseInt(hour, 10);
+    const period = hour >= 12 ? "PM" : "AM";
+    hour = hour % 12 || 12;
+    const formattedHour = hour.toString().padStart(2, "0");
 
-  return `${day} ${monthName} ${year} (${formattedHour}:${minute} ${period})`;
-};
-
-
+    return `${day} ${monthName} ${year} (${formattedHour}:${minute} ${period})`;
+  };
 
   const handleEdit = () => {
-    navigation.navigate('AddBandhak',{data});
+    navigation.navigate('AddBandhak', { data });
   };
 
   if (!data) {
-    console.log("hi")
   }
   else {
     return (
@@ -213,11 +209,11 @@ const formatTimestamp = (timestamp) => {
             <View style={styles.rowContainer}>
               <View style={styles.sectionHalf}>
                 <Text style={styles.label}>🥇 Gold:</Text>
-                <Text style={styles.value}>{data.gold_weight? data.gold_weight+' g': "NA"}</Text>
+                <Text style={styles.value}>{data.gold_weight ? data.gold_weight + ' g' : "NA"}</Text>
               </View>
               <View style={styles.sectionHalf}>
                 <Text style={styles.label}>🥈 Silver:</Text>
-                <Text style={styles.value}>{data.silver_weight ?data.silver_weight +' g': "NA"}</Text>
+                <Text style={styles.value}>{data.silver_weight ? data.silver_weight + ' g' : "NA"}</Text>
               </View>
             </View>
             <View style={styles.section}>
@@ -231,12 +227,12 @@ const formatTimestamp = (timestamp) => {
               </View>
               <View style={styles.sectionHalf}>
                 <Text style={styles.label}>📅 English Date:</Text>
-                <Text style={styles.value}>{data.englishDate ?formatDate(data.englishDate): ""}</Text>
+                <Text style={styles.value}>{data.englishDate ? formatDate(data.englishDate) : ""}</Text>
               </View>
             </View>
             <View style={styles.section}>
               <Text style={styles.label}>🕒 Created At:</Text>
-              <Text style={styles.value}>{data.created_at? formatTimestamp(data.created_at): ""}</Text>
+              <Text style={styles.value}>{data.created_at ? formatTimestamp(data.created_at) : ""}</Text>
             </View>
             <View style={styles.buttonContainer}>
               <TouchableOpacity style={styles.editButton} onPress={handleEdit}>
@@ -256,17 +252,17 @@ const formatTimestamp = (timestamp) => {
             </Animated.View>
           </View>
         </ScrollView>
-         <Modal transparent={true} visible={deleteConfirmationVisible} animationType="slide" onRequestClose={() => setDeleteConfirmationVisible(false)}>
-                                <View style={styles.modalContainer}>
-                                    <View style={styles.modalContent}>
-                                        <Text style={styles.modalText}>Are you sure you want to delete this invoice?</Text>
-                                        <View style={styles.modalButtonContainer}>
-                                            <Button title="Cancel" onPress={() => setDeleteConfirmationVisible(false)} color="#d4af37" />
-                                            <Button title="Yes" onPress={handleDelete} color="#d4af37" />
-                                        </View>
-                                    </View>
-                                </View>
-                            </Modal>
+        <Modal transparent={true} visible={deleteConfirmationVisible} animationType="slide" onRequestClose={() => setDeleteConfirmationVisible(false)}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalText}>Are you sure you want to delete this invoice?</Text>
+              <View style={styles.modalButtonContainer}>
+                <Button title="Cancel" onPress={() => setDeleteConfirmationVisible(false)} color="#d4af37" />
+                <Button title="Yes" onPress={handleDelete} color="#d4af37" />
+              </View>
+            </View>
+          </View>
+        </Modal>
       </GestureHandlerRootView>
     );
   };
@@ -403,8 +399,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: 'rgba(0, 0, 0, 0.8)',
-},
-modalContent: {
+  },
+  modalContent: {
     width: '80%',
     backgroundColor: '#1a1a1a',
     padding: 20,
@@ -412,24 +408,24 @@ modalContent: {
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: {
-        width: 0,
-        height: 2,
+      width: 0,
+      height: 2,
     },
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
-},
-modalText: {
+  },
+  modalText: {
     fontSize: 18,
     marginBottom: 20,
     textAlign: 'center',
     color: '#ffffff',
-},
-modalButtonContainer: {
+  },
+  modalButtonContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
-},
+  },
 });
 
 export default BandhakDetail;

@@ -424,7 +424,7 @@ const AddInvoice = () => {
                     />
                   )}
                 </View>
-                  <Text style={{ fontSize: 16, fontWeight: "600", color:"black" }}>{option.label}</Text>
+                <Text style={{ fontSize: 16, fontWeight: "600", color: "black" }}>{option.label}</Text>
                 <Image
                   source={option.image}
                   style={{ width: 30, height: 30, }}
@@ -468,7 +468,7 @@ const AddInvoice = () => {
                     value={goldGrams}
                     onChangeText={setGoldGrams}
                     placeholder="Gold (grams)"
-                  placeholderTextColor="#999"
+                    placeholderTextColor="#999"
 
                   />
                 </View>
@@ -480,7 +480,7 @@ const AddInvoice = () => {
                     value={silverGrams}
                     onChangeText={setSilverGrams}
                     placeholder="Silver (grams)"
-                  placeholderTextColor="#999"
+                    placeholderTextColor="#999"
 
                   />
                 </View>
@@ -522,16 +522,6 @@ const AddInvoice = () => {
               </View>
             ))}
           </View>
-
-
-
-
-
-
-
-
-
-
 
 
           <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
