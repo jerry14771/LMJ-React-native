@@ -6,7 +6,7 @@ import InvoiceNav from '../Invoice/InvoiceNav';
 import CustomDrawer from './CustomDrawer';
 import Settings from '../Settings/Settings';
 import FilterNav from '../Filter/FilterNav';
-
+import UdhariNav from '../Udhari/UdhariNav';
 
 const Home = () => {
 const Drawer = createDrawerNavigator();
@@ -16,6 +16,7 @@ const Drawer = createDrawerNavigator();
         <Drawer.Screen name="InvoiceNav" component={InvoiceNav} options={{ headerShown: false }}  />
         <Drawer.Screen name="FilterNav" component={FilterNav} options={{ headerShown: false }} />
         <Drawer.Screen name="BandhakNav" component={BandhakNav} options={{ headerShown: false }} />
+        <Drawer.Screen name="UdhariNav" component={UdhariNav} options={{ headerShown: false }} />
         <Drawer.Screen name="Settings" component={Settings} options={{ headerShown: false }} />
       </Drawer.Navigator>
   )

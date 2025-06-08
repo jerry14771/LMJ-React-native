@@ -16,7 +16,7 @@ const BandhakDetail = () => {
   const id = route.params.id;
   const navigation = useNavigation();
   const [data, setData] = useState(null);
-  const statuses = ['Rakhti', 'Chutti'];
+  const statuses = ['Rakhti', 'Chukti'];
   const [currentStatusIndex, setCurrentStatusIndex] = useState(0);
   const translateX = useSharedValue(0);
   const [deleteConfirmationVisible, setDeleteConfirmationVisible] = useState(false);
@@ -41,7 +41,7 @@ const BandhakDetail = () => {
   }, [])
 
   const statusColors = {
-    Rakhti: '#FFA500', Chutti: '#32CD32'
+    Rakhti: '#FFA500', Chukti: '#32CD32'
   };
 
   const callStatusChangeAPI = async (newStatus, id) => {

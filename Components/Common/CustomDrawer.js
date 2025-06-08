@@ -16,7 +16,9 @@ const CustomDrawer = (props) => {
   const filterDeactive = require("../../assets/filter.png");
   const bandhakActive = require("../../assets/cashback_active.png");
   const bandhakDeactive = require("../../assets/cashback_deactive.png");
-  const logoutLogo = require("../../assets/switch.png")
+  const logoutLogo = require("../../assets/switch.png");
+  const UdhariLogo = require("../../assets/UharLogo.png");
+  const udhariActive = require("../../assets/UharLogoActive.png");
 
   const settingicon = require("../../assets/settings.png");
   const settingActive = require("../../assets/settings_active.png");
@@ -110,17 +112,23 @@ const handleConfirm = async() => {
             </View>
           </TouchableOpacity>
 
-          <TouchableOpacity onPress={() => { navigation.navigate("FilterNav") }} style={{ marginLeft: 10, backgroundColor: pageName == "FilterNav" ? "#d4af37" : "transparent", borderRadius: 5, marginRight: 10 }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12, gap: 10 }}>
-              <Image source={pageName == "FilterNav" ? filterActive : filterDeactive} style={{ height: 18, width: 18 }} />
-              <Text style={{ marginLeft: 10, fontFamily: 'Inter-Bold', fontSize: 15, color: pageName == "FilterNav" ? "white" : "gray" }}>Filter</Text>
-            </View>
-          </TouchableOpacity>
 
           <TouchableOpacity onPress={() => { navigation.navigate("BandhakNav", { screen: "BandhakHome" }) }} style={{ marginLeft: 10, backgroundColor: pageName == "BandhakNav" ? "#d4af37" : "transparent", borderRadius: 5, marginRight: 10 }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12, gap: 10 }}>
               <Image source={pageName == "BandhakNav" ? bandhakActive : bandhakDeactive} style={{ height: 18, width: 18 }} />
               <Text style={{ marginLeft: 10, fontFamily: 'Inter-Bold', fontSize: 15, color: pageName == "BandhakNav" ? "white" : "gray" }}>Bandhak</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { navigation.navigate("UdhariNav", { screen: "UdhariHome" }) }} style={{ marginLeft: 10, backgroundColor: pageName == "UdhariNav" ? "#d4af37" : "transparent", borderRadius: 5, marginRight: 10 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12, gap: 10 }}>
+              <Image source={pageName == "UdhariNav" ? udhariActive : UdhariLogo} style={{ height: 18, width: 18 }} />
+              <Text style={{ marginLeft: 10, fontFamily: 'Inter-Bold', fontSize: 15, color: pageName == "UdhariNav" ? "white" : "gray" }}>Udhari</Text>
+            </View>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => { navigation.navigate("FilterNav") }} style={{ marginLeft: 10, backgroundColor: pageName == "FilterNav" ? "#d4af37" : "transparent", borderRadius: 5, marginRight: 10 }}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', padding: 12, gap: 10 }}>
+              <Image source={pageName == "FilterNav" ? filterActive : filterDeactive} style={{ height: 18, width: 18 }} />
+              <Text style={{ marginLeft: 10, fontFamily: 'Inter-Bold', fontSize: 15, color: pageName == "FilterNav" ? "white" : "gray" }}>Filter</Text>
             </View>
           </TouchableOpacity>
         </View>

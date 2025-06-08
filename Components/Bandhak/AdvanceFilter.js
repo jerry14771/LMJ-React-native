@@ -16,7 +16,7 @@ const AdvanceFilter = () => {
     const [minamount, setMinAmount] = useState(null);
     const [maxamount, setMaxAmount] = useState(null);
     const [status, setStatus] = useState(null);
-    const statuses = ["Pending", "Completed"];
+    const statuses = ["Rakhti", "Chukti"];
 
 
     const [goldMinWeight, setGoldMinWeight] = useState("");

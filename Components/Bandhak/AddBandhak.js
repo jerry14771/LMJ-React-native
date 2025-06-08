@@ -7,13 +7,12 @@ import Toast from 'react-native-toast-message';
 import DatePicker from 'react-native-date-picker';
 
 
-const hindiMonths = ["सावन", "भादों", "आश्विन", "कार्तिक", "अग्रहायण", "पौष", "माघ", "फाल्गुन", "चैत्र", "वैशाख", "ज्येष्ठ", "आषाढ़"];
+const hindiMonths = ["सावन", "भादों", "आश्विन", "कार्तिक", "अगहन", "पौष", "माघ", "फाल्गुन", "चैत्र", "वैशाख", "ज्येष्ठ", "आषाढ़"];
 const hindiYears = ["१४२८", "१४२९", "१४३०", "१४३१", "१४३२", "१४३३", "१४३४", "१४३५", "१४३६", "१४३७", "१४३८", "१४३९", "१४४०", "१४४१", "१४४२", "१४४३", "१४४४", "१४४५"];
 const hindiDates = ["१", "२", "३", "४", "५", "६", "७", "८", "९", "१०", "११", "१२", "१३", "१४", "१५", "१६", "१७", "१८", "१९", "२०", "२१", "२२", "२३", "२४", "२५", "२६", "२७", "२८", "२९", "३०", "३१"];
 const books = ["B*A", "B*K*J", "Bina Purza", "B*K"];
 
 const AddBandhak = () => {
-
 
     const getValidDate = (dateString) => {
         const parsedDate = new Date(dateString);
@@ -26,9 +25,9 @@ const AddBandhak = () => {
     const route = useRoute();
     const id = route.params?.data?.id ?? null;
     const [selectedBook, setSelectedBook] = useState(route.params?.data?.book_name ?? null);
-    const [goldSelected, setGoldSelected] = useState(route.params?.data?.gold_weight ? true: false);
-    const [silverSelected, setSilverSelected] = useState(route.params?.data?.silver_weight ? true: false);
-    const [goldWeight, setGoldWeight] = useState(route.params?.data?.gold_weight ??"");
+    const [goldSelected, setGoldSelected] = useState(route.params?.data?.gold_weight ? true : false);
+    const [silverSelected, setSilverSelected] = useState(route.params?.data?.silver_weight ? true : false);
+    const [goldWeight, setGoldWeight] = useState(route.params?.data?.gold_weight ?? "");
     const [silverWeight, setSilverWeight] = useState(route.params?.data?.silver_weight ?? "");
     const [amountGiven, setAmountGiven] = useState(route.params?.data?.amount_given ?? "");
     const [selectedDate, setSelectedDate] = useState(route.params?.data?.hindi_date ?? "");
@@ -46,13 +45,13 @@ const AddBandhak = () => {
     const [isEnglishDateOpen, setEnglishDateOpen] = useState(false);
     const calanderLogo = require('../../assets/calendar.png');
 
-    
-    
+
+
     const openModal = (type) => {
         setModalType(type);
         setModalVisible(true);
     };
-    
+
     const submitData = async () => {
         const url = `${config.BASE_URL}InsertBandhak.php`;
         let requestBody = {
@@ -73,7 +72,7 @@ const AddBandhak = () => {
         if (goldSelected) {
             requestBody.gold_weight = goldWeight;
         }
-        
+
         if (silverSelected) {
             requestBody.silver_weight = silverWeight;
         }
@@ -99,14 +98,21 @@ const AddBandhak = () => {
             });
         }
     }
-    
-   
+
+
     const selectValue = (value) => {
         if (modalType === "date") setSelectedDate(value);
         if (modalType === "month") setSelectedMonth(value);
         if (modalType === "year") setSelectedYear(value);
         if (modalType === "books") setSelectedBook(value);
         setModalVisible(false);
+    };
+    const hindiToEnglish = (hindiNumber) => {
+        const mapping = {
+            '०': '0', '१': '1', '२': '2', '३': '3', '४': '4',
+            '५': '5', '६': '6', '७': '7', '८': '8', '९': '9'
+        };
+        return hindiNumber.split('').map(char => mapping[char] || char).join('');
     };
 
     return (
@@ -118,17 +124,17 @@ const AddBandhak = () => {
                         <Text style={{ color: selectedBook === null ? "gray" : "black" }}>{selectedBook || "Choose Book"}</Text>
                     </TouchableOpacity>
 
-                    <TextInput style={styles.input} onChangeText={(txt) => setReciptNumber(txt)} placeholder="Receipt Number" placeholderTextColor="gray" keyboardType="numeric" value={reciptNumber??""}/>
+                    <TextInput style={styles.input} onChangeText={(txt) => setReciptNumber(txt)} placeholder="Receipt Number" placeholderTextColor="gray" keyboardType="numeric" value={reciptNumber ?? ""} />
 
-                    <TextInput style={styles.input} placeholder="Name" placeholderTextColor="gray" onChangeText={(txt) => setName(txt)} value={name??""} />
+                    <TextInput style={styles.input} placeholder="Name" placeholderTextColor="gray" onChangeText={(txt) => setName(txt)} value={name ?? ""} />
 
-                    <TextInput style={styles.input} placeholder="Father/Husband Name" placeholderTextColor="gray" onChangeText={(txt) => setFatherName(txt)} value={fatherName??""} />
-
-                    
-                    <TextInput style={[styles.input, styles.textArea]} placeholder="Address" placeholderTextColor="gray" multiline onChangeText={(txt) => setAddress(txt)} value={address??""}/>
+                    <TextInput style={styles.input} placeholder="Father/Husband Name" placeholderTextColor="gray" onChangeText={(txt) => setFatherName(txt)} value={fatherName ?? ""} />
 
 
-                    <TextInput style={styles.input} keyboardType="numeric" placeholder="Mobile Number" placeholderTextColor="gray" onChangeText={(txt) => setMobile(txt)} value={mobile??""}/>
+                    <TextInput style={[styles.input, styles.textArea]} placeholder="Address" placeholderTextColor="gray" multiline onChangeText={(txt) => setAddress(txt)} value={address ?? ""} />
+
+
+                    <TextInput style={styles.input} keyboardType="numeric" placeholder="Mobile Number" placeholderTextColor="gray" onChangeText={(txt) => setMobile(txt)} value={mobile ?? ""} />
 
 
 
@@ -163,7 +169,7 @@ const AddBandhak = () => {
                     )}
 
 
-                    <TextInput style={[styles.input, styles.textArea]} placeholder="Description" placeholderTextColor="gray" multiline onChangeText={(txt) => setDescription(txt)} value={description??""}/>
+                    <TextInput style={[styles.input, styles.textArea]} placeholder="Description" placeholderTextColor="gray" multiline onChangeText={(txt) => setDescription(txt)} value={description ?? ""} />
 
                     <TouchableOpacity onPress={() => setEnglishDateOpen(true)} style={{ backgroundColor: "#f0f0f0", padding: 10, marginVertical: 10, borderRadius: 7, borderColor: "#d4af37", borderWidth: 1 }}>
                         <View style={{ flexDirection: "row", justifyContent: "space-between" }} >
@@ -203,13 +209,19 @@ const AddBandhak = () => {
 
                     <View style={styles.dateContainer}>
                         <TouchableOpacity style={styles.dateBox} onPress={() => openModal("date")}>
-                            <Text style={{ color: selectedDate === null ? "gray" : "black" }}>{selectedDate || "तारीख"}</Text>
+                            <Text style={{ color: selectedDate === null ? "gray" : "black" }}>
+                                {selectedDate ? hindiToEnglish(selectedDate) : "तारीख"}
+                            </Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.dateBox} onPress={() => openModal("month")}>
-                            <Text style={{ color: selectedMonth === null ? "gray" : "black" }}>{selectedMonth || "महीना"}</Text>
+                            <Text style={{ color: selectedMonth === null ? "gray" : "black" }}>
+                                {selectedMonth || "महीना"}
+                            </Text>
                         </TouchableOpacity>
                         <TouchableOpacity style={styles.dateBox} onPress={() => openModal("year")}>
-                            <Text style={{ color: selectedYear === null ? "gray" : "black" }}>{selectedYear || "वर्ष"}</Text>
+                            <Text style={{ color: selectedYear === null ? "gray" : "black" }}>
+                                {selectedYear ? hindiToEnglish(selectedYear) : "वर्ष"}
+                            </Text>
                         </TouchableOpacity>
                     </View>
 
@@ -233,11 +245,20 @@ const AddBandhak = () => {
                                                 : hindiYears
                                     }
                                     keyExtractor={(item) => item.toString()}
-                                    renderItem={({ item }) => (
-                                        <TouchableOpacity style={styles.modalItem} onPress={() => selectValue(item.toString())}>
-                                            <Text style={{ color: "black" }}>{item}</Text>
-                                        </TouchableOpacity>
-                                    )}
+                                    renderItem={({ item }) => {
+                                        const displayValue = modalType === 'date' || modalType === 'year'
+                                            ? hindiToEnglish(item)
+                                            : item; // month stays in Hindi
+
+                                        return (
+                                            <TouchableOpacity
+                                                style={styles.modalItem}
+                                                onPress={() => selectValue(item)} // send original Hindi value
+                                            >
+                                                <Text style={{ color: "black" }}>{displayValue}</Text>
+                                            </TouchableOpacity>
+                                        );
+                                    }}
                                 />
                             </View>
                         </TouchableWithoutFeedback>
