@@ -11,7 +11,7 @@ const screenWidth = Dimensions.get('window').width;
 const imageSize = (screenWidth - 75) / 3;
 
 const EditInvoiceFilter = ({ route }) => {
-    const getFullImagePath = (path) => `https://lmjak.co.in/appAPI/${path.replace(/\\/g, '')}`;
+    const getFullImagePath = (path) => `${config.BASE_URL + path.replace(/\\/g, '')}`;
     const navigation = useNavigation();
     const [receiptImages, setReceiptImages] = useState(route.params.invoice.receiptImages ? JSON.parse(route.params.invoice.receiptImages).map((img) => ({ uri: getFullImagePath(img), isExisting: true })) : []);
     const [designImages, setDesignImages] = useState(route.params.invoice.designImages ? JSON.parse(route.params.invoice.designImages).map((img) => ({ uri: getFullImagePath(img), isExisting: true })) : []);
@@ -183,7 +183,7 @@ const EditInvoiceFilter = ({ route }) => {
         formData.append('deliveryDate', deliveryDate.toISOString());
 
 
-        const removeBaseUrl = (uri) => uri.replace('https://lmjak.co.in/appAPI/', '');
+        const removeBaseUrl = (uri) => uri.replace(`${config.BASE_URL}`, '');
 
         const safeReceiptImages = receiptImages || [];
         const safeDesignImages = designImages || [];

@@ -1,4 +1,4 @@
-import { View, Text, TextInput, Button, ScrollView, Animated, Dimensions, Image, TouchableOpacity, FlatList, StyleSheet } from 'react-native';
+import { View, Text, TextInput, Button, ScrollView, Animated, Dimensions, Image, TouchableOpacity, FlatList, StyleSheet, Modal, TouchableWithoutFeedback, ActivityIndicator } from 'react-native';
 import React, { useState, useRef, useEffect } from 'react';
 import HeaderWithCollapse from '../Common/HeaderWithCollapse';
 import CheckBox from "@react-native-community/checkbox";
@@ -6,8 +6,6 @@ import DatePicker from 'react-native-date-picker';
 import config from '../../config';
 import LottieView from 'lottie-react-native';
 import { useNavigation } from '@react-navigation/native';
-
-
 
 const StatusHome = () => {
   const [isVisible, setIsVisible] = useState(true);
@@ -17,6 +15,12 @@ const StatusHome = () => {
   const [metal, setMetal] = useState(false);
   const [data, setData] = useState(null);
   const navigation = useNavigation();
+
+  const [page, setPage] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [searchLoading, setSearchLoading] = useState(false);
+
+  const [hasMore, setHasMore] = useState(true);
 
   const [deliverDateStart, setdeliveryDateStart] = useState(null);
   const [deliverDateEnd, setdeliveryDateEnd] = useState(null);
@@ -42,11 +46,21 @@ const StatusHome = () => {
   const opacityAnim = useRef(new Animated.Value(1)).current;
   const rotateAnim = useRef(new Animated.Value(0)).current;
 
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedStatus, setSelectedStatus] = useState([]);
+
+  const statusOptions = ["Pending", "Ongoing", "Completed", "Delivered"];
+
   const search = () => {
     toggleVisible();
     rotateAnimation();
-    hitSearchAPI();
-  }
+
+    setTimeout(() => {
+      setPage(1);
+      setHasMore(true);
+      hitSearchAPI(1);
+    }, 300);
+  };
 
   const TriangleCorner = ({ text }) => {
     return (
@@ -56,27 +70,56 @@ const StatusHome = () => {
       </View>
     );
   };
+  const hitSearchAPI = async (pageNumber = 1) => {
+    if (loading) return;
 
-  const hitSearchAPI = async () => {
-    console.log(metal, amountmax);
+    if (pageNumber === 1) {
+      setSearchLoading(true);   // full screen loader
+    } else {
+      setLoading(true);         // bottom loader
+    }
+
     const url = `${config.BASE_URL}advanceSearch.php`;
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ address, amountmin, amountmax, metal, deliverDateStart, deliverDateEnd, orderDateStart, orderDateEnd }),
-    });
-    const result = await response.json();
-    if (result.status == "success") {
-      setData(result.data);
-    }
-    else {
-      setData(null);
 
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          page: pageNumber,
+          address,
+          amountmin,
+          amountmax,
+          metal,
+          deliverDateStart,
+          deliverDateEnd,
+          orderDateStart,
+          orderDateEnd,
+          selectedStatus
+        }),
+      });
+
+      const result = await response.json();
+
+      if (result.status === "success") {
+        if (pageNumber === 1) {
+          setData(result.data);
+        } else {
+          setData(prev => [...prev, ...result.data]);
+        }
+
+        if (result.data.length < 50) {
+          setHasMore(false);
+        }
+      }
+    } catch (e) {
+      console.log("API Error:", e);
     }
 
-  }
+    setSearchLoading(false);
+    setLoading(false);
+  };
+
 
   const renderItem = ({ item }) => (
     <TouchableOpacity onPress={() => navigation.navigate('StatusHomeInvoiceDetail', { invoice: item })} style={{ margin: 10 }}>
@@ -148,9 +191,7 @@ const StatusHome = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: "black" }}>
-
       <HeaderWithCollapse toggleVisible={toggleVisible} isVisible={isVisible} rotateAnimation={rotateAnimation} rotateInterpolate={rotateInterpolate} />
-
       <Animated.View
         style={{
           height: heightAnim,
@@ -161,13 +202,6 @@ const StatusHome = () => {
       >
         <ScrollView contentContainerStyle={{ paddingBottom: 20, padding: 10 }}>
           <View style={{ gap: 15 }}>
-            {/* <View>
-              <View style={{ paddingHorizontal: 5, backgroundColor: "#03f0fc", paddingVertical: 2, alignItems: "center", borderRadius: 5 }}>
-                <Text style={{ fontSize: 12, fontWeight: "600", marginBottom: 5, color: "black" }}>Advance Filter</Text>
-              </View>
-            </View> */}
-
-
             <View style={{ flexDirection: "row" }}>
               <TextInput
                 placeholder="Address"
@@ -319,10 +353,6 @@ const StatusHome = () => {
               setDeliveryDateOpenEnd(false); setdeliveryDateEnd(date);
             }} onCancel={() => { setDeliveryDateOpenEnd(false); }} />
 
-
-
-
-
             <View>
               <Text style={{ color: "black", fontWeight: "600" }}>Order Date Filter</Text>
               <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
@@ -334,7 +364,6 @@ const StatusHome = () => {
                       {orderDateStart ? <View style={{ height: 25, width: 25 }} /> : <Image source={calanderLogo} style={{ height: 25, width: 25 }} />}
                     </View>
                   </TouchableOpacity>
-
                   <TouchableOpacity onPress={() => setOrderDateOpenEnd(true)} style={{ backgroundColor: "#f0f0f0", padding: 10, marginVertical: 2, borderRadius: 7, width: '48%' }}>
                     <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
                       <Text style={{ color: orderDateEnd ? "black" : "gray", fontWeight: orderDateEnd ? "600" : "normal" }}>
@@ -343,7 +372,6 @@ const StatusHome = () => {
                     </View>
                   </TouchableOpacity>
                 </View>
-
                 <View style={{ width: "20%", alignItems: "center", justifyContent: "center" }}>
                   <TouchableOpacity onPress={() => { setorderDateStart(null); setorderDateEnd(null); }}><Image source={clearAll} style={{ height: 30, width: 30 }} /></TouchableOpacity>
                 </View>
@@ -357,32 +385,41 @@ const StatusHome = () => {
               setOrderDateOpenEnd(false); setorderDateEnd(date);
             }} onCancel={() => { setOrderDateOpenEnd(false); }} />
 
+            <View>
+              <Text style={{ color: "black", fontWeight: "600" }}>Status</Text>
+              <View style={{ justifyContent: "space-between", flexDirection: "row" }}>
+                <View style={{ width: "80%", flexDirection: "row", justifyContent: "space-between" }}>
+                  <TouchableOpacity
+                    onPress={() => setModalVisible(true)}
+                    style={{
+                      backgroundColor: "#f0f0f0",
+                      borderRadius: 5,
+                      width: "100%",
+                      paddingHorizontal: 10,
+                      paddingVertical: 10,
+                    }}
+                  >
+                    <Text style={{ color: selectedStatus.length ? "black" : "gray" }}>
+                      {selectedStatus.length
+                        ? selectedStatus.join(", ")
+                        : "Select Status"}
+                    </Text>
+                  </TouchableOpacity>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+                </View>
+                <View style={{ width: "20%", alignItems: "center", justifyContent: "center" }}>
+                  <TouchableOpacity onPress={() => setSelectedStatus([])}>
+                    <Image source={clearAll} style={{ height: 30, width: 30 }} />
+                  </TouchableOpacity>
+                </View>
+              </View>
+            </View>
             <View style={{ alignItems: "center" }}>
               <TouchableOpacity style={{ padding: 10, backgroundColor: "#24fffb", borderRadius: 5 }} onPress={search}>
                 <Text style={{ color: "black" }}>Search</Text>
               </TouchableOpacity>
             </View>
-
-
-
           </View>
-
         </ScrollView>
       </Animated.View>
 
@@ -396,14 +433,102 @@ const StatusHome = () => {
             data={data}
             renderItem={renderItem}
             keyExtractor={(item) => item.id.toString()}
-          />)
-
+            onEndReached={() => {
+              if (!loading && hasMore) {
+                const nextPage = page + 1;
+                setPage(nextPage);
+                hitSearchAPI(nextPage);
+              }
+            }}
+            onEndReachedThreshold={0.5}
+            ListFooterComponent={
+              loading ? <ActivityIndicator size="large" color="gray" /> : null
+            }
+          />
+          )
       }
 
+      <Modal visible={modalVisible} transparent animationType="slide">
+        <TouchableWithoutFeedback onPress={() => setModalVisible(false)}>
+          <View
+            style={{
+              flex: 1,
+              backgroundColor: "rgba(0,0,0,0.4)",
+              justifyContent: "center",
+              padding: 20,
+            }}
+          >
+            {/* Prevent closing when clicking inside box */}
+            <TouchableWithoutFeedback>
+              <View
+                style={{
+                  backgroundColor: "white",
+                  borderRadius: 10,
+                  padding: 20,
+                }}
+              >
+                {statusOptions.map((item) => {
+                  const isSelected = selectedStatus.includes(item);
 
+                  return (
+                    <TouchableOpacity
+                      key={item}
+                      onPress={() => {
+                        if (isSelected) {
+                          setSelectedStatus(
+                            selectedStatus.filter((i) => i !== item)
+                          );
+                        } else {
+                          setSelectedStatus([...selectedStatus, item]);
+                        }
+                      }}
+                      style={{
+                        flexDirection: "row",
+                        justifyContent: "space-between",
+                        alignItems: "center",
+                        paddingVertical: 8,
+                        paddingHorizontal: 10,
+                        borderRadius: 6,
+                        marginVertical: 5,
+                        backgroundColor: isSelected ? "#e6f4ea" : "#fdf9f9ff",
+                      }}
+                    >
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          color: isSelected ? "black" : "gray",
+                          fontWeight: isSelected ? "600" : "400",
+                        }}
+                      >
+                        {item}
+                      </Text>
 
+                      {isSelected && (
+                        <Text style={{ fontSize: 14, color: "green" }}>✓</Text>
+                      )}
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            </TouchableWithoutFeedback>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
 
-
+      {searchLoading && (
+        <View style={{
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: "rgba(0,0,0,0.3)"
+        }}>
+          <ActivityIndicator size="large" color="white" />
+        </View>
+      )}
     </View>
   );
 };

@@ -92,9 +92,10 @@ const InvoiceHome = () => {
                     <Text style={styles.amountText}>
                         Paid Amount: <Text style={styles.boldAmountText}>₹{item.amountGiven}</Text>
                     </Text>
-                    <View style={{ flexDirection: "row", gap: 10 }}>
+                    <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
                         <Text style={styles.mobileText}>Status: </Text>
                         <Text style={{ padding: 5, backgroundColor: item.status == "Completed" ? '#32CD32' : item.status == "Pending" ? "#FFA500" : item.status == "Ongoing" ? '#1E90FF' : '#FFD700', borderRadius: 5, color: "white", fontWeight: "700", fontSize: 9 }}>{item.status}</Text>
+                        {item.staffAccess=='yes'?<View style={{ height:15, width:15, borderRadius:15, backgroundColor:'green' }}></View>:'' }
                     </View>
                 </View>
             </View>

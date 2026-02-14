@@ -29,9 +29,9 @@ const InvoiceDetail = ({ route }) => {
     const [designImages, setDesignImages] = useState(JSON.parse(invoice.designImages).map(image => ({ uri: `${config.BASE_URL}${image}` })));
     const [receiptImages, setReceiptImages] = useState(JSON.parse(invoice.receiptImages).map(image => ({ uri: `${config.BASE_URL}${image}` })));
     const invoiceID = invoice.id;
-    const binLogo = require("../../assets/delete.png");
     const phoneLogo = require('../../assets/phone_call.png');
     const navigation = useNavigation();
+    const binLogo = require("../../assets/delete.png");
     const shareLogo = require("../../assets/share.png");
     const editLogo = require("../../assets/pen.png");
     const [currentStatusIndex, setCurrentStatusIndex] = useState(invoice.status=="Pending"?0:invoice.status=="Ongoing"?1:invoice.status=="Completed"?2:3);
@@ -112,7 +112,7 @@ const InvoiceDetail = ({ route }) => {
             const designImageLinks = designImages.map(img => img.uri).join('\n\n');
             const receiptImageLinks = receiptImages.map(img => img.uri).join('\n\n');
 
-            const shareMessage = `Invoice Details:
+            const shareMessage = `Purza Number: ${invoice.invoice_number}
         \nName: ${invoice.name}
         \nDate: ${currentDate}
         \nOrder Date: ${formatOrderAndDeliveryDate(invoice.orderDate)}

@@ -1,4 +1,4 @@
-import { View, Text, FlatList, TouchableOpacity, Image, Modal, Pressable, Share } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity, Image, Modal, Pressable, Linking } from 'react-native'
 import React, { useState, useEffect, useCallback } from 'react'
 import Header from '../Common/Header'
 import { useFocusEffect, useNavigation } from '@react-navigation/native'
@@ -6,10 +6,18 @@ import config from '../../config'
 import { TextInput } from 'react-native-gesture-handler'
 import LottieView from 'lottie-react-native';
 import ImageView from 'react-native-image-viewing';
+import Share from 'react-native-share';
+
 
 const ListAllUdhaar = () => {
   const [data, setData] = useState(null);
   const [visible, setIsVisible] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [selectedImages, setSelectedImages] = useState([]);
+  const [showGalleryModal, setShowGalleryModal] = useState(false);
+
+
 
   const deletelogo = require("../../assets/delete2.png");
   const editlogo = require("../../assets/pen.png");
@@ -19,8 +27,6 @@ const ListAllUdhaar = () => {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [selectedIdToDelete, setSelectedIdToDelete] = useState(null);
   const navigation = useNavigation();
-
-
 
   const fetchTodaysUdhari = async () => {
     const url = `${config.BASE_URL}fetchAllUdhari.php`;
@@ -37,27 +43,64 @@ const ListAllUdhaar = () => {
       setFilteredData(result.data);
     }
   };
+  //   const handleShare = async (item) => {
+  //     try {
+  //       const message = `
+  // 🧾 *Udhaar Details*
+
+  // 👤 Name: ${item.name}
+  // 📞 Mobile: ${item.mobile}
+  // 🏠 Address: ${item.address}
+  // 🧾 Billing Amount: ₹${item.totalAmount}
+  // ✅ Paid Amount: ₹${item.amountGiven}
+  // 💰 Remaining: ₹${item.totalAmount - item.amountGiven}
+  // 📅 Udhar Date: ${new Date(item.udharDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
+  // 📅 Chukti Date: ${new Date(item.chuktiDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
+  // 📝 Description: ${item.description || 'N/A'}
+  //     `;
+
+  //       await Share.share({
+  //         message,
+  //       });
+  //     } catch (error) {
+  //       console.log('Sharing failed:', error.message);
+  //     }
+  //   };
+
+
   const handleShare = async (item) => {
+
+    let imagesPath = (selectedImages.map(img => img.uri).join('\n\n'))
+
+
     try {
       const message = `
-🧾 *Udhaar Details*
-
+🧾 Udhaar Details
 👤 Name: ${item.name}
 📞 Mobile: ${item.mobile}
 🏠 Address: ${item.address}
 🧾 Billing Amount: ₹${item.totalAmount}
 ✅ Paid Amount: ₹${item.amountGiven}
 💰 Remaining: ₹${item.totalAmount - item.amountGiven}
-📅 Udhar Date: ${new Date(item.udharDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
-📅 Chukti Date: ${new Date(item.chuktiDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'long', year: 'numeric' })}
+📅 Udhar Date: ${new Date(item.udharDate).toLocaleDateString('en-GB')}
+📅 Chukti Date: ${new Date(item.chuktiDate).toLocaleDateString('en-GB')}
 📝 Description: ${item.description || 'N/A'}
-    `;
+${imagesPath}
 
-      await Share.share({
+`;
+
+      const shareOptions = {
+        title: 'Share Udhaar Details',
         message,
-      });
+        social: Share.Social.WHATSAPP, // optional (remove if sharing everywhere)
+      };
+
+      await Share.open(shareOptions);
+
     } catch (error) {
-      console.log('Sharing failed:', error.message);
+      if (error?.message !== 'User did not share') {
+        console.log('Share error:', error);
+      }
     }
   };
 
@@ -93,12 +136,8 @@ const ListAllUdhaar = () => {
     }
   };
 
-
-
-
   const renderItem = ({ item }) => (
     <View
-      onPress={() => navigation.navigate('InvoiceDetail', { invoice: item })}
       style={{
         marginVertical: 6,
         marginHorizontal: 16,
@@ -121,9 +160,9 @@ const ListAllUdhaar = () => {
       </View>
 
       {/* Billing Section */}
-      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, backgroundColor:"#dfe3e8", borderRadius:5}}>
+      <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, backgroundColor: "#dfe3e8", borderRadius: 5 }}>
 
-        <View style={{  padding: 12}}>
+        <View style={{ padding: 12 }}>
           <Text style={{ fontSize: 14, color: '#6c757d', marginBottom: 4 }}>
             Billing Amount: <Text style={{ fontWeight: '700', color: '#e76f51' }}>₹{item.totalAmount}</Text>
           </Text>
@@ -135,28 +174,34 @@ const ListAllUdhaar = () => {
           </Text>
         </View>
         <View style={{ height: 80, width: 80 }}>
-          <TouchableOpacity onPress={() => setIsVisible(true)}>
-            <Image
-              source={{ uri: `${config.BASE_URL}/${JSON.parse(item.receiptImages)[0]}` }}
-              style={{ height: 80, width: 80, borderRadius: 8 }}
-              resizeMode="cover"
-            />
-          </TouchableOpacity>
+          {item.receiptImages && JSON.parse(item.receiptImages).length > 0 && (
+            <TouchableOpacity
+              onPress={() => {
+                const imagesArray = JSON.parse(item.receiptImages).map(img => ({
+                  uri: `${config.BASE_URL}/${img}`
+                }));
 
-          <ImageView
-            images={[{ uri: `${config.BASE_URL}/${JSON.parse(item.receiptImages)[0]}` }]}
-            imageIndex={0}
-            visible={visible}
-            onRequestClose={() => setIsVisible(false)}
-          />
+                setSelectedImages(imagesArray);
+                setShowGalleryModal(true);   // 👈 open gallery modal
+              }}
+            >
+              <Image
+                source={{
+                  uri: `${config.BASE_URL}/${JSON.parse(item.receiptImages)[0]}`
+                }}
+                style={{ height: 80, width: 80, borderRadius: 8 }}
+                resizeMode="cover"
+              />
+            </TouchableOpacity>
+          )}
         </View>
       </View>
 
       {/* Contact Details */}
       <View style={{ marginBottom: 8 }}>
-        <Text style={{ fontSize: 13, color: '#495057', marginBottom: 2 }}>
-          📞 Mobile: <Text style={{ fontWeight: '600', color: '#1a1a1a' }}>{item.mobile}</Text>
-        </Text>
+        <TouchableOpacity onPress={() => Linking.openURL(`tel:${item.mobile}`)} style={{ marginBottom: 2 }}>
+          <Text style={{ fontSize: 13, color: '#495057', }}> 📞 Mobile: <Text style={{ fontWeight: '600', color: '#1a1a1a' }}>{item.mobile}</Text></Text>
+        </TouchableOpacity>
         <Text style={{ fontSize: 13, color: '#495057', marginBottom: 2 }}>
           🏠 Address: <Text style={{ fontWeight: '600', color: '#1a1a1a' }}>{item.address}</Text>
         </Text>
@@ -188,8 +233,6 @@ const ListAllUdhaar = () => {
         <TouchableOpacity style={{ alignItems: "center", width: "33%" }} onPress={() => handleShare(item)}>
           <Image source={sharelogo} style={{ height: 20, width: 20 }} />
         </TouchableOpacity>
-
-
       </View>
 
 
@@ -216,8 +259,6 @@ const ListAllUdhaar = () => {
     );
     setFilteredData(filtered);
   };
-
-
 
   return (
     <View style={{ flex: 1, backgroundColor: 'black' }}>
@@ -255,10 +296,16 @@ const ListAllUdhaar = () => {
 
       }
 
+      <ImageView
+        images={selectedImages}
+        imageIndex={currentIndex}
+        visible={visible}
+        onRequestClose={() => setIsVisible(false)}
+      />
+
       <Modal
         visible={showDeleteModal}
         transparent
-        animationType="fade"
         onRequestClose={() => setShowDeleteModal(false)}
       >
         <View style={{
@@ -312,7 +359,61 @@ const ListAllUdhaar = () => {
         </View>
       </Modal>
 
+      <Modal
+        visible={showGalleryModal}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowGalleryModal(false)}
+      >
+        <View style={{
+          flex: 1,
+          justifyContent: 'center',
+          alignItems: 'center',
+          backgroundColor: 'rgba(0,0,0,0.5)'   // blur-like dark overlay
+        }}>
+          <View style={{
+            width: '90%',
+            height: '50%',
+            backgroundColor: '#fff',
+            borderRadius: 15,
+            padding: 15
+          }}>
 
+            <FlatList
+              data={selectedImages}
+              numColumns={3}
+              keyExtractor={(_, index) => index.toString()}
+              renderItem={({ item, index }) => (
+                <TouchableOpacity
+                  onPress={() => {
+                    setCurrentIndex(index);
+                    setIsVisible(true);
+                  }}
+                  style={{ flex: 1 / 3, padding: 5 }}
+                >
+                  <Image
+                    source={{ uri: item.uri }}
+                    style={{ height: 90, borderRadius: 8 }}
+                    resizeMode="cover"
+                  />
+                </TouchableOpacity>
+              )}
+            />
+
+            <Pressable
+              onPress={() => setShowGalleryModal(false)}
+              style={{
+                position: 'absolute',
+                top: 10,
+                right: 15
+              }}
+            >
+              <Text style={{ fontSize: 16 }}>Close</Text>
+            </Pressable>
+
+          </View>
+        </View>
+      </Modal>
 
 
     </View>

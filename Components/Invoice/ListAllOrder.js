@@ -44,18 +44,18 @@ const ListAllOrder = () => {
 
     const filterData = (text = filterText, date = filterDate, status = statusFilter) => {
         let filtered = data;
-    
+
         if (filterOption !== 'status' && filterOption !== 'delivery_date') {
             setFilteredData(data);
         }
-    
+
         if (text) {
             filtered = filtered.filter((item) => {
                 const valueToFilter = (item[filterOption] || '').toString().toLowerCase();
                 return valueToFilter.includes(text.toLowerCase());
             });
         }
-    
+
         if (date) {
             filtered = filtered.filter((item) => {
                 const itemDate = new Date(item.deliveryDate).toISOString().split('T')[0];
@@ -63,13 +63,47 @@ const ListAllOrder = () => {
                 return itemDate === filterFormattedDate;
             });
         }
-    
+
         if (status && status !== 'all') {
             filtered = filtered.filter((item) => item.status.toLowerCase() === status.toLowerCase());
         }
         setFilteredData(filtered);
     };
-    
+
+    useFocusEffect(
+        useCallback(() => {
+            const fetchSingleOrder = async () => {
+                if (!listRefState) return;
+
+                try {
+                    const response = await fetch(`${config.BASE_URL}getSingleOrder.php`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ id: listRefState }),
+                    });
+                    const result = await response.json();
+
+                    if (result.status === 'success' && result.data) {
+                        const updatedRecord = result.data;
+
+                        // Replace in both data and filteredData
+                        setData(prev =>
+                            prev.map(item => (item.id === updatedRecord.id ? updatedRecord : item))
+                        );
+                        setFilteredData(prev =>
+                            prev.map(item => (item.id === updatedRecord.id ? updatedRecord : item))
+                        );
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch updated order:', error);
+                }
+            };
+
+            fetchSingleOrder();
+        }, [listRefState])
+    );
+
+
 
     const debouncedFilterData = useCallback(
         debounce((text, date, status) => {
@@ -91,11 +125,11 @@ const ListAllOrder = () => {
     );
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity 
+        <TouchableOpacity
             onPress={() => {
-                setListRefState(item.id); 
+                setListRefState(item.id);
                 navigation.navigate('InvoiceDetail', { invoice: item });
-            }} 
+            }}
             style={{ margin: 10 }}
         >
             <View style={[styles.card, { backgroundColor: listRefState === item.id ? "#b8f5e9" : "#ffffff" }]}>
@@ -109,14 +143,14 @@ const ListAllOrder = () => {
                         <View style={{
                             height: 20, width: 20, borderRadius: 20,
                             backgroundColor: item.metal === "Gold" ? "gold" :
-                                            item.metal === "Silver" ? "#C0C0C0" :
-                                            item.metal === "Mix" ? "red" : "blue",
+                                item.metal === "Silver" ? "#C0C0C0" :
+                                    item.metal === "Mix" ? "red" : "blue",
                             justifyContent: "center", alignItems: "center"
                         }}>
                             <Text style={{ color: "white", fontWeight: "bold" }}>
                                 {item.metal === "Gold" ? "G" :
-                                 item.metal === "Silver" ? "S" :
-                                 item.metal === "Mix" ? "M" : "U"}
+                                    item.metal === "Silver" ? "S" :
+                                        item.metal === "Mix" ? "M" : "U"}
                             </Text>
                         </View>
                     </View>
@@ -126,17 +160,18 @@ const ListAllOrder = () => {
                     <Text style={styles.amountText}>
                         Paid Amount: <Text style={styles.boldAmountText}>₹{item.amountGiven}</Text>
                     </Text>
-                    <View style={{ flexDirection: "row", gap: 10 }}>
+                    <View style={{ flexDirection: "row", gap: 10, alignItems: "center" }}>
                         <Text style={styles.mobileText}>Status: </Text>
                         <Text style={{
                             padding: 5,
                             backgroundColor: item.status === "Completed" ? '#32CD32' :
-                                             item.status === "Pending" ? "#FFA500" :
-                                             item.status === "Ongoing" ? '#1E90FF' : '#FFD700',
+                                item.status === "Pending" ? "#FFA500" :
+                                    item.status === "Ongoing" ? '#1E90FF' : '#FFD700',
                             borderRadius: 5, color: "white", fontWeight: "700", fontSize: 9
                         }}>
                             {item.status}
                         </Text>
+                        {item.staffAccess == 'yes' ? <View style={{ height: 15, width: 15, borderRadius: 15, backgroundColor: 'green' }}></View> : ''}
                     </View>
                 </View>
             </View>

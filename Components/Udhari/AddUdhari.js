@@ -15,8 +15,6 @@ const imageSize = (screenWidth - 75) / 3;
 const AddUdhari = () => {
   const route = useRoute();
   const { udhariData } = route.params || {};
-
-
   const calanderLogo = require('../../assets/calendar.png');
   const closeLogo = require("../../assets/close.png");
   const navigation = useNavigation();
@@ -93,38 +91,38 @@ const AddUdhari = () => {
   }, [search, contacts]);
 
   const pickReceiptImage = () => {
-  ImagePicker.openPicker({
-    multiple: false, // only one image
-    cropping: true,
-    mediaType: 'photo',
-  })
-    .then(image => {
-      setReceiptImages([image]); 
+    ImagePicker.openPicker({
+      multiple: true, // only one image
+      cropping: true,
+      mediaType: 'photo',
     })
-    .catch(error => {
-      if (error?.code !== 'E_PICKER_CANCELLED') {
-        console.log('Error picking receipt image:', error);
-        Alert.alert('Error', 'Failed to pick image');
-      }
-    });
-};
+      .then(images => {
+        setReceiptImages(prev => [...prev, ...images]);
+      })
+      .catch(error => {
+        if (error?.code !== 'E_PICKER_CANCELLED') {
+          console.log('Error picking receipt image:', error);
+          Alert.alert('Error', 'Failed to pick image');
+        }
+      });
+  };
 
 
-const openReceiptCamera = () => {
-  ImagePicker.openCamera({
-    cropping: true,
-    mediaType: 'photo',
-  })
-    .then(image => {
-      setReceiptImages([image]); 
+  const openReceiptCamera = () => {
+    ImagePicker.openCamera({
+      cropping: true,
+      mediaType: 'photo',
     })
-    .catch(error => {
-      if (error?.code !== 'E_PICKER_CANCELLED') {
-        console.log('Error opening camera:', error);
-        Alert.alert('Error', 'Failed to open camera');
-      }
-    });
-};
+      .then(image => {
+        setReceiptImages(prev => [...prev, image]);
+      })
+      .catch(error => {
+        if (error?.code !== 'E_PICKER_CANCELLED') {
+          console.log('Error opening camera:', error);
+          Alert.alert('Error', 'Failed to open camera');
+        }
+      });
+  };
 
 
   const handleSubmit = async () => {
@@ -139,26 +137,21 @@ const openReceiptCamera = () => {
     formData.append('deliveryDate', deliveryDate ? deliveryDate.toISOString() : '');
 
     // Attach image (same for both)
-   if (receiptImages[0]) {
-  const image = receiptImages[0];
-  formData.append('receiptImage', {
-    uri: image.path,
-    type: image.mime,
-    name: `receipt_${Date.now()}.jpg`,
-  });
-}
-
+    receiptImages.forEach((image, index) => {
+      formData.append('receiptImages[]', {
+        uri: image.path,
+        type: image.mime,
+        name: `receipt_${Date.now()}_${index}.jpg`,
+      });
+    });
 
     try {
       setActivity(true);
-
       let apiURL = '';
       if (udhariData?.id) {
-        // UPDATE
         apiURL = config.BASE_URL + 'updateUdhari.php';
         formData.append('id', udhariData.id);
       } else {
-        // INSERT
         apiURL = config.BASE_URL + 'insertUdhari.php';
       }
 
@@ -396,11 +389,10 @@ const openReceiptCamera = () => {
           />
 
           <TouchableOpacity
-            style={[styles.imagePicker, receiptImages.length > 0 && { backgroundColor: '#ccc' }]}
+            style={[styles.imagePicker]}
             onPress={handleReceiptImageSelection}
-            disabled={receiptImages.length > 0}
           >
-            <Text style={[styles.imagePickerText, receiptImages.length > 0 && { color: '#666' }]}>
+            <Text style={[styles.imagePickerText]}>
               Upload Receipt Image
             </Text>
           </TouchableOpacity>
