@@ -1,4 +1,4 @@
-import { FlatList, Modal, View, TextInput, Text, TouchableOpacity, Image, StyleSheet, Alert, ScrollView, Dimensions, ActivityIndicator } from 'react-native'
+import { FlatList, Modal, View, TextInput, Text, TouchableOpacity, Image, StyleSheet, Alert, ScrollView, Dimensions } from 'react-native'
 import React, { useState, useEffect } from 'react'
 import Header from '../Common/Header'
 import { useNavigation,useRoute  } from '@react-navigation/native';
@@ -6,7 +6,8 @@ import Contacts from 'react-native-contacts';
 import DatePicker from 'react-native-date-picker';
 import config from '../../config';
 import ImagePicker from 'react-native-image-crop-picker';
-
+import LottieView from 'lottie-react-native';
+import C from '../../colorConfig';
 
 const screenWidth = Dimensions.get('window').width;
 const imageSize = (screenWidth - 75) / 3;
@@ -349,7 +350,11 @@ const EditUdhari = () => {
 
         {activity && (
           <View style={styles.overlay}>
-            <ActivityIndicator size="large" color="#0000ff" />
+           <LottieView
+                                                                                   style={{ flex: 1 }}
+                                                                                   source={require('../../assets/Coin purse.json')}
+                                                                                   autoPlay loop
+                                                                                 />
           </View>
         )}
       </View>
@@ -415,7 +420,11 @@ const EditUdhari = () => {
       </Modal>
       {
         loadingContacts ? (<View style={styles.overlay}>
-          <ActivityIndicator size="large" color="#0000ff" />
+          <LottieView
+                                                                                  style={{ flex: 1 }}
+                                                                                  source={require('../../assets/Coin purse.json')}
+                                                                                  autoPlay loop
+                                                                                />
         </View>) : <></>
       }
     </View>

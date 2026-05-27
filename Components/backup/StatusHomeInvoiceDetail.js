@@ -115,15 +115,12 @@ const StatusHomeInvoiceDetail = ({ route }) => {
 
             const shareMessage = `Purza Number: ${invoice.invoice_number}
         \nName: ${invoice.name}
-        \nDate: ${currentDate}
         \nOrder Date: ${formatOrderAndDeliveryDate(invoice.orderDate)}
         \nDeliver Date: ${formatOrderAndDeliveryDate(invoice.deliveryDate)}
         \nMobile: ${invoice.mobile}
-        \nAddress: ${invoice.address}
         \nTotal Amount: ₹${parseInt(invoice.totalAmount)}
         \nPaid Amount: ₹${parseInt(invoice.amountGiven)}
         \nRemaining Amount: ₹${parseInt(invoice.totalAmount) - parseInt(invoice.amountGiven)}
-        \nDescription: ${invoice.description}
         
         \nDesign Images:\n${designImageLinks}
         

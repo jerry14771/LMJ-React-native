@@ -6,6 +6,8 @@ import AddInvoice from './AddInvoice';
 import InvoiceDetail from './InvoiceDetail';
 import ListAllOrder from './ListAllOrder';
 import EditInvoice from './EditInvoice';
+import PaymentHistory from './PaymentHistory';
+
 
 
 
@@ -20,6 +22,7 @@ const InvoiceNav = () => {
       <InvoiceStack.Screen name="InvoiceDetail" component={InvoiceDetail} options={{ headerShown: false }} />
       <InvoiceStack.Screen name="ListAllOrder" component={ListAllOrder} options={{ headerShown: false }} />
       <InvoiceStack.Screen name="EditInvoice" component={EditInvoice} options={{ headerShown: false }} />
+      <InvoiceStack.Screen name="PaymentHistory" component={PaymentHistory} options={{ headerShown: false }} />
     </InvoiceStack.Navigator>
   )
 }

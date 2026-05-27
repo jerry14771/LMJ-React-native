@@ -3,7 +3,7 @@ import React, { useState, useRef } from 'react'
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-const HeaderWithCollapse = ({toggleVisible, isVisible, rotateAnimation, rotateInterpolate}) => {
+const HeaderWithCollapse = ({ toggleVisible, isVisible, rotateAnimation, rotateInterpolate }) => {
     const hamburger = require('../../assets/more.png');
     const logoutLogo = require('../../assets/switch.png');
     const logo = require('../../assets/logo.png');
@@ -39,14 +39,10 @@ const HeaderWithCollapse = ({toggleVisible, isVisible, rotateAnimation, rotateIn
                 />
             </TouchableOpacity>
 
-            <View>
-                <Image source={logo} style={{ height: 65, width: 65 }} />
-            </View>
-
             {
                 <View style={{ alignItems: "center", marginTop: 10 }}>
                     <TouchableOpacity
-                        onPress={()=>{toggleVisible();rotateAnimation();}}
+                        onPress={() => { toggleVisible(); rotateAnimation(); }}
                         style={{
                             backgroundColor: 'white',
                             padding: 10,

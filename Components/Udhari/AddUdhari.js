@@ -1,131 +1,175 @@
-import { FlatList, Modal, View, TextInput, Text, TouchableOpacity, Image, StyleSheet, Alert, ScrollView, Dimensions, ActivityIndicator } from 'react-native'
-import React, { useState, useEffect } from 'react'
-import Header from '../Common/Header'
-import { useNavigation } from '@react-navigation/native';
+import {
+  FlatList, Modal, View, TextInput, Text, TouchableOpacity,
+  Image, StyleSheet, Alert, ScrollView, Dimensions, StatusBar, Platform,
+} from 'react-native';
+import React, { useState, useEffect } from 'react';
+import Header from '../Common/Header';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import Contacts from 'react-native-contacts';
 import DatePicker from 'react-native-date-picker';
 import config from '../../config';
 import ImagePicker from 'react-native-image-crop-picker';
-import { useRoute } from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
+import LottieView from 'lottie-react-native';
+import C from '../../colorConfig';
+
+const { width: W } = Dimensions.get('window');
+const imageSize = (W - 75) / 3;
 
 
+// ─── Section Header ───────────────────────────────────────────────────────────
+const SectionHeader = ({ icon, title }) => (
+  <View style={s.sectionHeader}>
+    <View style={s.sectionIconBox}>
+      <Text style={s.sectionIconText}>{icon}</Text>
+    </View>
+    <Text style={s.sectionTitle}>{title}</Text>
+  </View>
+);
 
-const screenWidth = Dimensions.get('window').width;
-const imageSize = (screenWidth - 75) / 3;
+// ─── Labeled Field ────────────────────────────────────────────────────────────
+const Field = ({ label, icon, style, inputStyle, ...props }) => (
+  <View style={[s.fieldWrap, style]}>
+    {label ? <Text style={s.fieldLabel}>{label}</Text> : null}
+    <View style={s.fieldBox}>
+      {icon ? <Text style={s.fieldIcon}>{icon}</Text> : null}
+      <TextInput
+        style={[s.fieldInput, icon ? { paddingLeft: 4 } : null, inputStyle]}
+        placeholderTextColor={C.textMuted}
+        {...props}
+      />
+    </View>
+  </View>
+);
+
+// ─── Main Component ───────────────────────────────────────────────────────────
 const AddUdhari = () => {
   const route = useRoute();
-  const { udhariData } = route.params || {};
-  const calanderLogo = require('../../assets/calendar.png');
-  const closeLogo = require("../../assets/close.png");
   const navigation = useNavigation();
+  const { udhariData } = route.params || {};
+
+  const calanderLogo = require('../../assets/calendar.png');
+  const closeLogo = require('../../assets/close.png');
+  const phoneBook = require('../../assets/phonebook.png');
+
+  // Form state
   const [name, setName] = useState('');
   const [mobile, setMobile] = useState('');
   const [address, setAddress] = useState('');
   const [description, setDescription] = useState('');
   const [totalAmount, setTotalAmount] = useState('');
   const [amountGiven, setAmountGiven] = useState('');
-  const [orderDate, setOrderDate] = useState(null);
-  const [deliveryDate, setDeliveryDate] = useState(null);
-  const [isOrderDateOpen, setOrderDateOpen] = useState(false);
-  const [isDeliveryDateOpen, setDeliveryDateOpen] = useState(false);
+  const [udharDate, setUdharDate] = useState(null);
+  const [chuktiDate, setChuktiDate] = useState(null);
+  const [isUdharOpen, setUdharOpen] = useState(false);
+  const [isChuktiOpen, setChuktiOpen] = useState(false);
+  const [receiptImages, setReceiptImages] = useState([]);
+
+  // UI state
   const [activity, setActivity] = useState(false);
-  const phoneBook = require("../../assets/phonebook.png");
   const [modalVisible, setModalVisible] = useState(false);
   const [contacts, setContacts] = useState([]);
   const [filteredContacts, setFilteredContacts] = useState([]);
   const [search, setSearch] = useState('');
   const [loadingContacts, setLoadingContacts] = useState(false);
-  const [receiptImages, setReceiptImages] = useState([]);
 
+  // ── Pre-fill when editing ─────────────────────────────────────────────────
   useEffect(() => {
-    if (udhariData) {
-      setName(udhariData.name || '');
-      setMobile(udhariData.mobile || '');
-      setAddress(udhariData.address || '');
-      setDescription(udhariData.description || '');
-      setTotalAmount(udhariData.totalAmount?.toString() || '');
-      setAmountGiven(udhariData.amountGiven?.toString() || '');
-
-      if (udhariData.udharDate) {
-        setOrderDate(new Date(udhariData.udharDate));
-      }
-      if (udhariData.chuktiDate) {
-        setDeliveryDate(new Date(udhariData.chuktiDate));
-      }
-
-      if (udhariData.receiptImages) {
-        try {
-          const parsedImages = JSON.parse(udhariData.receiptImages);
-          const formattedImages = parsedImages.map((img) => {
-            let path =
-              typeof img === 'string'
-                ? img
-                : img.path || img.uri || img.sourceURL;
-            // Prepend BASE_URL if not already a full URL
-            if (path && !path.startsWith('http') && !path.startsWith('file')) {
-              path = config.BASE_URL + path;
-            }
-            return {
-              path,
-              mime: (typeof img === 'object' && img.mime) ? img.mime : 'image/jpeg',
-            };
-          });
-          setReceiptImages(formattedImages);
-        } catch (err) {
-          console.log('Failed to parse receiptImages JSON:', err);
-        }
-      }
+    if (!udhariData) return;
+    setName(udhariData.name || '');
+    setMobile(udhariData.mobile || '');
+    setAddress(udhariData.address || '');
+    setDescription(udhariData.description || '');
+    setTotalAmount(udhariData.totalAmount?.toString() || '');
+    setAmountGiven(udhariData.amountGiven?.toString() || '');
+    if (udhariData.udharDate) setUdharDate(new Date(udhariData.udharDate));
+    if (udhariData.chuktiDate) setChuktiDate(new Date(udhariData.chuktiDate));
+    if (udhariData.receiptImages) {
+      try {
+        const parsed = JSON.parse(udhariData.receiptImages);
+        setReceiptImages(parsed.map(img => {
+          let path = typeof img === 'string' ? img : (img.path || img.uri || '');
+          if (path && !path.startsWith('http') && !path.startsWith('file'))
+            path = config.BASE_URL + path;
+          return { path, mime: img.mime || 'image/jpeg' };
+        }));
+      } catch (e) { console.warn(e); }
     }
   }, []);
 
-
+  // ── Contact search filter ─────────────────────────────────────────────────
   useEffect(() => {
-    if (search) {
-      const filtered = contacts.filter(contact =>
-        contact.displayName.toLowerCase().includes(search.toLowerCase())
-      );
-      setFilteredContacts(filtered);
-    } else {
-      setFilteredContacts(contacts);
-    }
+    setFilteredContacts(
+      search
+        ? contacts.filter(c => c.displayName?.toLowerCase().includes(search.toLowerCase()))
+        : contacts
+    );
   }, [search, contacts]);
 
-  const pickReceiptImage = () => {
-    ImagePicker.openPicker({
-      multiple: true, // only one image
-      cropping: true,
-      mediaType: 'photo',
-    })
-      .then(images => {
-        setReceiptImages(prev => [...prev, ...images]);
-      })
-      .catch(error => {
-        if (error?.code !== 'E_PICKER_CANCELLED') {
-          console.log('Error picking receipt image:', error);
-          Alert.alert('Error', 'Failed to pick image');
-        }
-      });
+  // ── Image Handling ────────────────────────────────────────────────────────
+  const handleReceiptImageSelection = () =>
+    Alert.alert('Upload Receipt', '', [
+      { text: 'Camera', onPress: openReceiptCamera },
+      { text: 'Gallery', onPress: pickReceiptImage },
+      { text: 'Cancel', style: 'cancel' },
+    ]);
+
+  const pickReceiptImage = () =>
+    ImagePicker.openPicker({ multiple: true, cropping: true })
+      .then(imgs => setReceiptImages(p => [...p, ...imgs])).catch(() => { });
+
+  const openReceiptCamera = () =>
+    ImagePicker.openCamera({ cropping: true })
+      .then(img => setReceiptImages(p => [...p, img])).catch(() => { });
+
+  const handleRemoveImage = (index) =>
+    setReceiptImages(p => p.filter((_, i) => i !== index));
+
+  // ── Contacts ──────────────────────────────────────────────────────────────
+  const openPhoneBook = async () => {
+    setLoadingContacts(true);
+    const permission = await Contacts.requestPermission();
+    if (permission === 'authorized') {
+      Contacts.getAll()
+        .then(list => {
+          const valid = list
+            .filter(c => c.phoneNumbers?.length > 0)
+            .sort((a, b) => (a.displayName || '').localeCompare(b.displayName || ''));
+          if (!valid.length) { Alert.alert('No Contacts', 'No contacts with phone numbers.'); return; }
+          setContacts(valid); setFilteredContacts(valid); setModalVisible(true);
+        })
+        .catch(e => console.warn(e))
+        .finally(() => setLoadingContacts(false));
+    } else {
+      Alert.alert('Permission Denied', 'Cannot access contacts.'); setLoadingContacts(false);
+    }
   };
 
-
-  const openReceiptCamera = () => {
-    ImagePicker.openCamera({
-      cropping: true,
-      mediaType: 'photo',
-    })
-      .then(image => {
-        setReceiptImages(prev => [...prev, image]);
-      })
-      .catch(error => {
-        if (error?.code !== 'E_PICKER_CANCELLED') {
-          console.log('Error opening camera:', error);
-          Alert.alert('Error', 'Failed to open camera');
-        }
-      });
+  const selectContact = (contact) => {
+    setMobile(contact.phoneNumbers[0].number.replace(/[^0-9+]/g, ''));
+    setModalVisible(false);
   };
 
+  const renderContactItem = ({ item }) => {
+    const dname = item.displayName ||
+      `${item.givenName || ''} ${item.familyName || ''}`.trim();
+    return item.phoneNumbers.length > 0 ? (
+      <TouchableOpacity onPress={() => selectContact(item)} style={s.contactRow} activeOpacity={0.7}>
+        <View style={s.contactAvatar}>
+          <Text style={s.contactAvatarLetter}>{(dname[0] || '?').toUpperCase()}</Text>
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={s.contactName}>{dname || 'Unnamed'}</Text>
+          <Text style={s.contactNum}>{item.phoneNumbers[0]?.number}</Text>
+        </View>
+        <Text style={{ color: C.primary, fontSize: 22 }}>›</Text>
+      </TouchableOpacity>
+    ) : null;
+  };
 
+  // ── Submit ────────────────────────────────────────────────────────────────
   const handleSubmit = async () => {
+    setActivity(true);
     const formData = new FormData();
     formData.append('name', name);
     formData.append('mobile', mobile);
@@ -133,447 +177,447 @@ const AddUdhari = () => {
     formData.append('description', description);
     formData.append('totalAmount', totalAmount);
     formData.append('amountGiven', amountGiven);
-    formData.append('orderDate', orderDate ? orderDate.toISOString() : '');
-    formData.append('deliveryDate', deliveryDate ? deliveryDate.toISOString() : '');
-
-    // Attach image (same for both)
-    receiptImages.forEach((image, index) => {
+    formData.append('orderDate', udharDate ? udharDate.toISOString() : '');
+    formData.append('deliveryDate', chuktiDate ? chuktiDate.toISOString() : '');
+    if (udhariData?.id) formData.append('id', udhariData.id);
+    receiptImages.forEach((img, i) =>
       formData.append('receiptImages[]', {
-        uri: image.path,
-        type: image.mime,
-        name: `receipt_${Date.now()}_${index}.jpg`,
-      });
-    });
-
+        uri: img.path, type: img.mime, name: `receipt_${Date.now()}_${i}.jpg`,
+      })
+    );
     try {
-      setActivity(true);
-      let apiURL = '';
-      if (udhariData?.id) {
-        apiURL = config.BASE_URL + 'updateUdhari.php';
-        formData.append('id', udhariData.id);
-      } else {
-        apiURL = config.BASE_URL + 'insertUdhari.php';
-      }
-
-      const response = await fetch(apiURL, {
+      const url = udhariData?.id
+        ? config.BASE_URL + 'updateUdhari.php'
+        : config.BASE_URL + 'insertUdhari.php';
+      const res = await fetch(url, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'multipart/form-data',
-        },
+        headers: { 'Content-Type': 'multipart/form-data' },
         body: formData,
       });
-
-      const result = await response.json();
+      const result = await res.json();
       if (result.status === 'success') {
-        // Alert.alert('Success', udhariData?.id ? 'Udhari updated successfully' : 'Invoice submitted successfully');
+        Toast.show({
+          type: 'success',
+          text1: udhariData?.id ? 'Udhaar Updated!' : 'Udhaar Added!',
+          text2: 'Saved successfully',
+        });
         navigation.goBack();
       } else {
         Alert.alert('Error', result.message || 'Something went wrong');
       }
-    } catch (error) {
+    } catch (e) {
       Alert.alert('Error', 'Request failed. Try again later.');
-      console.error('Submit error:', error);
     } finally {
       setActivity(false);
     }
   };
 
+  const fmtDate = d => d?.toLocaleDateString('en-GB', {
+    day: 'numeric', month: 'short', year: 'numeric',
+  });
 
-  const handleReceiptImageSelection = () => {
-    Alert.alert(
-      'Choose an option',
-      '',
-      [
-        { text: 'Camera', onPress: openReceiptCamera },
-        { text: 'Gallery', onPress: pickReceiptImage },
-        { text: 'Cancel', style: 'cancel' },
-      ],
-      { cancelable: true }
-    );
-  };
-
-  const openPhoneBook = async () => {
-    setLoadingContacts(true);
-    const permission = await Contacts.requestPermission();
-    if (permission === 'authorized') {
-      Contacts.getAll()
-        .then((contactsList) => {
-          const filteredContacts = contactsList.filter(
-            (contact) => contact.phoneNumbers && contact.phoneNumbers.length > 0
-          );
-
-          if (filteredContacts.length === 0) {
-            Alert.alert('No Contacts with Phone Numbers', 'No contacts with phone numbers found.');
-          } else {
-            setModalVisible(true);
-            const sortedContacts = filteredContacts.sort((a, b) => {
-              const nameA = a.displayName || "";
-              const nameB = b.displayName || "";
-              return nameA.localeCompare(nameB);
-            });
-            setContacts(sortedContacts);
-            setFilteredContacts(sortedContacts);
-          }
-        })
-        .catch((error) => {
-          console.warn('Error fetching contacts:', error);
-        })
-        .finally(() => {
-          setLoadingContacts(false); // Stop loading indicator
-        });
-    } else {
-      Alert.alert('Permission Denied', 'Cannot access contacts without permission.');
-    }
-  };
-
-  const selectContact = (contact) => {
-    if (contact.phoneNumbers.length > 0) {
-      setMobile(contact.phoneNumbers[0].number.replace(/[^0-9+]/g, ''));
-      setModalVisible(false);
-    } else {
-      Alert.alert('No Phone Number', 'This contact does not have a phone number.');
-    }
-  };
-
-  const renderContactItem = ({ item }) => {
-    const displayName = item.displayName || `${item.givenName || ""} ${item.familyName || ""}`.trim();
-
-    return item.phoneNumbers.length > 0 ? (
-      <TouchableOpacity
-        onPress={() => selectContact(item)}
-        style={{
-          paddingVertical: 10,
-          borderBottomWidth: 1,
-          borderColor: '#ddd',
-          width: '100%',
-        }}
-      >
-        <Text style={{ fontSize: 16, color: "black" }}>{displayName || "Unnamed Contact"}</Text>
-        <Text style={{ color: '#666' }}>{item.phoneNumbers[0]?.number || "No Number"}</Text>
-      </TouchableOpacity>
-    ) : null;
-  };
-
-  const handleRemoveImage = (setImageList, index) => {
-    setImageList(prevImages => prevImages.filter((_, i) => i !== index));
-  };
+  const balance = (parseFloat(totalAmount || 0) - parseFloat(amountGiven || 0)).toFixed(2);
+  const isEdit = !!udhariData?.id;
 
   return (
-    <View style={{ flex: 1 }}>
+    <View style={{ flex: 1, backgroundColor: C.bg }}>
+      <StatusBar barStyle="dark-content" backgroundColor={C.white} />
       <Header />
+
+      {/* ── Top Banner ── */}
+      <View style={s.topBanner}>
+        <View>
+          <Text style={s.bannerTitle}>{isEdit ? 'Edit Udhaar' : 'New Udhaar'}</Text>
+          <Text style={s.bannerSub}>Fill in the credit details below</Text>
+        </View>
+        <View style={s.bannerPill}>
+          <View style={s.bannerDot} />
+          <Text style={s.bannerPillText}>{isEdit ? 'Editing' : 'Draft'}</Text>
+        </View>
+      </View>
+
       <View style={{ flex: 1 }}>
-        <ScrollView contentContainerStyle={styles.container}>
+        <ScrollView contentContainerStyle={s.scroll} showsVerticalScrollIndicator={false}>
 
-          <TextInput
-            placeholder="Name"
-            value={name}
-            onChangeText={setName}
-            style={styles.input}
-            placeholderTextColor="#999"
-          />
+          {/* ── Client Info ── */}
+          <View style={s.card}>
+            <SectionHeader icon="👤" title="Client Information" />
 
-          <View style={{
-            height: 50,
-            borderColor: '#d4af37',
-            borderWidth: 1,
-            borderRadius: 8,
-            paddingHorizontal: 10,
-            marginBottom: 15,
-            backgroundColor: '#f0f0f0',
-            color: '#333',
-            flexDirection: "row",
-            justifyContent: "space-between",
-            alignItems: 'center'
-          }}>
-            <TextInput
-              placeholder="Mobile Number"
-              value={mobile}
-              onChangeText={setMobile}
-              keyboardType="number-pad"
-              maxLength={15}
-              placeholderTextColor="#999"
-              style={{ width: "85%", color: "black" }}
-            />
-            <TouchableOpacity onPress={openPhoneBook} style={{ width: "15%", justifyContent: "center", alignItems: "center", borderColor: "gray", borderLeftWidth: 1 }}>
-              <Image source={phoneBook} style={{ height: 35, width: 35 }} />
-            </TouchableOpacity>
+            <Field label="Full Name" icon="✎" placeholder="Client full name"
+              value={name} onChangeText={setName} />
+
+            {/* Mobile + phonebook */}
+            <Text style={s.fieldLabel}>Mobile Number</Text>
+            <View style={s.mobileRow}>
+              <View style={s.mobileBox}>
+                <Text style={s.fieldIcon}>📱</Text>
+                <TextInput
+                  placeholder="Enter mobile number"
+                  value={mobile} onChangeText={setMobile}
+                  keyboardType="number-pad" maxLength={15}
+                  placeholderTextColor={C.textMuted}
+                  style={[s.fieldInput, { flex: 1, paddingLeft: 4 }]}
+                />
+              </View>
+              <TouchableOpacity style={s.pbBtn} onPress={openPhoneBook} activeOpacity={0.85}>
+                <Image source={phoneBook} style={{ height: 20, width: 20, tintColor: C.white }} />
+              </TouchableOpacity>
+            </View>
+
+            <Field label="Address" icon="📍" placeholder="Full address"
+              value={address} onChangeText={setAddress} multiline
+              inputStyle={{ minHeight: 72, textAlignVertical: 'top', paddingTop: 10 }} />
           </View>
 
-          <TextInput
-            placeholder="Address"
-            value={address}
-            onChangeText={setAddress}
-            style={styles.input}
-            placeholderTextColor="#999"
-            multiline
-          />
-
-
-          <TextInput
-            placeholder="Total Amount"
-            value={totalAmount}
-            onChangeText={setTotalAmount}
-            keyboardType="numeric"
-            style={styles.input}
-            placeholderTextColor="#999"
-          />
-          <TextInput
-            placeholder="Amount Given"
-            value={amountGiven}
-            onChangeText={setAmountGiven}
-            keyboardType="numeric"
-            style={styles.input}
-            placeholderTextColor="#999"
-          />
-          <TextInput
-            placeholder="Description (optional)"
-            value={description}
-            onChangeText={setDescription}
-            style={[styles.input, styles.textArea]}
-            placeholderTextColor="#999"
-            multiline
-          />
-
-          <TouchableOpacity onPress={() => setOrderDateOpen(true)} style={{ backgroundColor: "#f0f0f0", padding: 10, marginVertical: 10, borderRadius: 7, borderColor: "#d4af37", borderWidth: 1 }}>
-            <View style={{ flexDirection: "row", justifyContent: "space-between" }} >
-              {orderDate ? <Text style={{ color: "black", fontWeight: "600" }}>{orderDate.toLocaleDateString("en-GB", {
-                day: "numeric",
-                month: "short",
-                year: "numeric"
-              })}</Text> : <Text style={{ color: "gray" }}>Eg. 20/02/2025 (Udhar Date)</Text>}
-              <Image source={calanderLogo} style={{ height: 25, width: 25 }} />
+          {/* ── Payment ── */}
+          <View style={s.card}>
+            <SectionHeader icon="💳" title="Payment Details" />
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+              <Field label="Total Amount ₹" icon="₹" placeholder="0.00"
+                value={totalAmount} onChangeText={setTotalAmount}
+                keyboardType="numeric" style={{ flex: 1 }} />
+              <Field label="Amount Given ₹" icon="₹" placeholder="0.00"
+                value={amountGiven} onChangeText={setAmountGiven}
+                keyboardType="numeric" style={{ flex: 1 }} />
             </View>
-          </TouchableOpacity>
+            {(totalAmount || amountGiven) ? (
+              <View style={s.balanceCard}>
+                <Text style={s.balanceLabel}>Remaining Due</Text>
+                <Text style={[s.balanceAmount, {
+                  color: parseFloat(balance) > 0 ? C.accent : C.primary,
+                }]}>
+                  ₹ {balance}
+                </Text>
+              </View>
+            ) : null}
+          </View>
 
-          <DatePicker
-            modal
-            title={"Select Order Date"}
-            theme='dark'
-            mode='date'
-            open={isOrderDateOpen}
-            date={orderDate || new Date()}
-            onConfirm={(date) => {
-              setOrderDateOpen(false);
-              setOrderDate(date);
-            }}
-            onCancel={() => {
-              setOrderDateOpen(false);
-            }}
-          />
+          {/* ── Description ── */}
+          <View style={s.card}>
+            <SectionHeader icon="📝" title="Description" />
+            <Field label="Notes (optional)" icon="✎" placeholder="Any details about this udhaar..."
+              value={description} onChangeText={setDescription} multiline
+              inputStyle={{ minHeight: 88, textAlignVertical: 'top', paddingTop: 10 }} />
+          </View>
 
-          <TouchableOpacity onPress={() => setDeliveryDateOpen(true)} style={{ backgroundColor: "#f0f0f0", padding: 10, marginVertical: 10, borderRadius: 7, borderColor: "#d4af37", borderWidth: 1 }}>
-            <View style={{ flexDirection: "row", justifyContent: "space-between" }} >
-              {deliveryDate ? <Text style={{ color: "black", fontWeight: "600" }}>{deliveryDate.toLocaleDateString("en-GB", {
-                day: "numeric",
-                month: "short",
-                year: "numeric"
-              })}</Text> : <Text style={{ color: "gray" }}>Eg. 20/04/2026 (Chukti Date)</Text>}
-              <Image source={calanderLogo} style={{ height: 25, width: 25 }} />
+          {/* ── Dates ── */}
+          <View style={s.card}>
+            <SectionHeader icon="📅" title="Dates" />
+            <View style={{ flexDirection: 'row', gap: 10 }}>
+
+              {/* Udhar Date */}
+              <TouchableOpacity
+                style={[s.dateCard, { flex: 1 }]}
+                onPress={() => setUdharOpen(true)}
+                activeOpacity={0.85}
+              >
+                <Text style={s.dateCardLabel}>Udhar Date</Text>
+                <View style={s.dateCardRow}>
+                  <Image source={calanderLogo} style={s.calIcon} />
+                  <Text style={[s.dateCardValue, !udharDate && s.datePlaceholder]}>
+                    {fmtDate(udharDate) || 'Select'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              {/* Chukti Date */}
+              <TouchableOpacity
+                style={[s.dateCard, { flex: 1 }]}
+                onPress={() => setChuktiOpen(true)}
+                activeOpacity={0.85}
+              >
+                <Text style={s.dateCardLabel}>Chukti Date</Text>
+                <View style={s.dateCardRow}>
+                  <Image source={calanderLogo} style={s.calIcon} />
+                  <Text style={[s.dateCardValue, !chuktiDate && s.datePlaceholder]}>
+                    {fmtDate(chuktiDate) || 'Select'}
+                  </Text>
+                </View>
+              </TouchableOpacity>
             </View>
-          </TouchableOpacity>
+          </View>
 
-          <DatePicker
-            modal
-            title={"Select Delivery Date"}
-            mode='date'
-            theme='dark'
-            open={isDeliveryDateOpen}
-            date={deliveryDate || new Date()}
-            onConfirm={(date) => {
-              setDeliveryDateOpen(false);
-              setDeliveryDate(date);
-            }}
-            onCancel={() => {
-              setDeliveryDateOpen(false);
-            }}
-          />
+          <DatePicker modal title="Select Udhar Date" theme="light" mode="date"
+            open={isUdharOpen} date={udharDate || new Date()}
+            onConfirm={d => { setUdharOpen(false); setUdharDate(d); }}
+            onCancel={() => setUdharOpen(false)} />
 
-          <TouchableOpacity
-            style={[styles.imagePicker]}
-            onPress={handleReceiptImageSelection}
-          >
-            <Text style={[styles.imagePickerText]}>
-              Upload Receipt Image
+          <DatePicker modal title="Select Chukti Date" theme="light" mode="date"
+            open={isChuktiOpen} date={chuktiDate || new Date()}
+            onConfirm={d => { setChuktiOpen(false); setChuktiDate(d); }}
+            onCancel={() => setChuktiOpen(false)} />
+
+          {/* ── Receipt Images ── */}
+          <View style={s.card}>
+            <SectionHeader icon="🧾" title="Receipt Images" />
+
+            <TouchableOpacity style={s.uploadBtn} onPress={handleReceiptImageSelection} activeOpacity={0.85}>
+              <View style={s.uploadIconBox}>
+                <Text style={{ fontSize: 18 }}>🧾</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <Text style={s.uploadTitle}>Upload Receipts</Text>
+                <Text style={s.uploadSub}>
+                  {receiptImages.length > 0
+                    ? `${receiptImages.length} image(s) selected`
+                    : 'Tap to upload from camera or gallery'}
+                </Text>
+              </View>
+              <Text style={s.uploadPlus}>＋</Text>
+            </TouchableOpacity>
+
+            {receiptImages.length > 0 && (
+              <View style={s.imgGrid}>
+                {receiptImages.map((img, i) => (
+                  <View key={i} style={s.imgThumb}>
+                    <Image source={{ uri: img.path }} style={s.thumbImg} />
+                    <TouchableOpacity style={s.thumbDel} onPress={() => handleRemoveImage(i)}>
+                      <Text style={s.thumbDelText}>✕</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </View>
+            )}
+          </View>
+
+          {/* ── Submit ── */}
+          <TouchableOpacity style={s.submitBtn} onPress={handleSubmit} activeOpacity={0.9}>
+            <Text style={s.submitText}>
+              {isEdit ? 'Update Udhaar  →' : 'Save Udhaar  →'}
             </Text>
           </TouchableOpacity>
 
-          <View style={styles.imageList}>
-            {receiptImages.map((image, index) => (
-              <View key={index} style={styles.imageContainer}>
-                <Image source={{ uri: image.path }} style={styles.image} />
-                <TouchableOpacity style={styles.removeButton} onPress={() => handleRemoveImage(setReceiptImages, index)}>
-                  <Text style={styles.removeButtonText}>X</Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-          </View>
-
-          <TouchableOpacity style={styles.submitButton} onPress={handleSubmit}>
-            <Text style={styles.submitButtonText}>Submit</Text>
-          </TouchableOpacity>
+          <View style={{ height: 36 }} />
         </ScrollView>
 
+        {/* ── Loader overlay ── */}
         {activity && (
-          <View style={styles.overlay}>
-            <ActivityIndicator size="large" color="#0000ff" />
+          <View style={s.overlay}>
+            <View style={s.loaderBox}>
+              <LottieView
+                style={{ height: 150, width: 150 }}
+                source={require('../../assets/Coin purse.json')}
+                autoPlay loop
+              />
+              <Text style={s.loaderText}>Loading Udhari...</Text>
+            </View>
           </View>
         )}
       </View>
 
+      {/* ── Contacts Modal (bottom sheet) ── */}
       <Modal
         visible={modalVisible}
         animationType="slide"
-        transparent={true}
+        transparent
         onRequestClose={() => setModalVisible(false)}
       >
-        <View
-          style={{
-            flex: 1,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            justifyContent: 'center',
-            alignItems: 'center',
-          }}
-        >
-          <View
-            style={{
-              width: '80%',
-              backgroundColor: 'white',
-              borderRadius: 8,
-              padding: 20,
-              maxHeight: "80%"
-
-            }}
-          >
-            <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 15 }}>
-              <Text style={{ fontSize: 18, fontWeight: 'bold', color: "gray" }}>Select Contact</Text>
-              <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Image source={closeLogo} style={{ height: 30, width: 30 }} />
+        <View style={s.modalBackdrop}>
+          <View style={s.modalSheet}>
+            <View style={s.sheetHandle} />
+            <View style={s.sheetHeader}>
+              <View>
+                <Text style={s.sheetTitle}>Select Contact</Text>
+                <Text style={s.sheetSub}>{filteredContacts.length} contacts found</Text>
+              </View>
+              <TouchableOpacity onPress={() => setModalVisible(false)} style={s.sheetClose}>
+                <Image source={closeLogo} style={{ width: 16, height: 16, tintColor: C.textSub }} />
               </TouchableOpacity>
-
             </View>
-
-            <TextInput
-              placeholder="Search contacts"
-              value={search}
-              onChangeText={setSearch}
-              placeholderTextColor={"gray"}
-              style={{
-                width: '100%',
-                padding: 10,
-                marginBottom: 15,
-                borderColor: '#ddd',
-                borderWidth: 1,
-                borderRadius: 8,
-                backgroundColor: '#f0f0f0',
-                color: "black"
-              }}
-            />
-
-
+            <View style={s.searchWrap}>
+              <Text style={{ fontSize: 16, marginRight: 8 }}>🔍</Text>
+              <TextInput
+                placeholder="Search by name..."
+                value={search}
+                onChangeText={setSearch}
+                placeholderTextColor={C.textMuted}
+                style={s.searchInput}
+              />
+            </View>
             <FlatList
               data={filteredContacts}
-              keyExtractor={(item) => item.recordID}
+              keyExtractor={item => item.recordID}
               renderItem={renderContactItem}
+              showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: 24 }}
             />
-
           </View>
         </View>
       </Modal>
-      {
-        loadingContacts ? (<View style={styles.overlay}>
-          <ActivityIndicator size="large" color="#0000ff" />
-        </View>) : <></>
-      }
+
+      {/* ── Contacts loading overlay ── */}
+      {loadingContacts && (
+        <View style={s.overlay}>
+          <View style={s.loaderCard}>
+            <LottieView
+              style={{ flex: 1 }}
+              source={require('../../assets/Coin purse.json')}
+              autoPlay loop
+            />
+            <Text style={s.loaderText}>Loading contacts...</Text>
+          </View>
+        </View>
+      )}
     </View>
-  )
-}
+  );
+};
 
-const styles = StyleSheet.create({
-  container: {
-    padding: 20,
-    backgroundColor: '#ffffff',
+// ─── StyleSheet ───────────────────────────────────────────────────────────────
+const s = StyleSheet.create({
+  scroll: { padding: 16, paddingTop: 12, backgroundColor: C.bg },
+
+  // Banner
+  topBanner: {
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between',
+    backgroundColor: C.white, paddingHorizontal: 20, paddingVertical: 14,
+    borderBottomWidth: 1, borderBottomColor: '#EDF4F3',
   },
-  input: {
-    height: 50,
-    borderColor: '#d4af37',
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    marginBottom: 15,
-    backgroundColor: '#f0f0f0',
-    color: '#333',
-  },
-  imagePicker: {
-    alignItems: 'center',
-    padding: 15,
-    backgroundColor: '#d4af37',
-    borderRadius: 8,
-    marginBottom: 5,
-  },
-  imagePickerText: {
-    color: '#ffffff',
-    fontWeight: 'bold',
-  },
-  imageList: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginBottom: 15,
-  },
-  imageContainer: {
-    position: 'relative',
-    margin: 5,
-  },
-  image: {
-    width: imageSize,
-    height: imageSize,
-    borderRadius: 8,
-    borderColor: '#d4af37',
-    borderWidth: 1,
+  bannerTitle: { fontSize: 22, fontWeight: '700', color: C.textPrimary, letterSpacing: -0.3 },
+  bannerSub: { fontSize: 13, color: C.textMuted, marginTop: 2 },
+  bannerPill: { flexDirection: 'row', alignItems: 'center', backgroundColor: C.primaryLight, borderRadius: 20, paddingHorizontal: 12, paddingVertical: 5, gap: 6 },
+  bannerDot: { width: 7, height: 7, borderRadius: 4, backgroundColor: C.primary },
+  bannerPillText: { color: C.primary, fontSize: 12, fontWeight: '600' },
+
+  // Card
+  card: {
+    backgroundColor: C.white, borderRadius: 18, padding: 18, marginBottom: 12,
+    shadowColor: C.cardShadow, shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 1, shadowRadius: 10, elevation: 3,
   },
 
-  removeButton: {
-    position: 'absolute',
-    top: -8,
-    right: -8,
-    backgroundColor: '#000',
-    width: 24,
-    height: 24,
-    borderRadius: 12,
-    alignItems: 'center',
-    justifyContent: 'center',
+  // Section header
+  sectionHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 16, gap: 10 },
+  sectionIconBox: { width: 34, height: 34, borderRadius: 10, backgroundColor: C.primaryLight, justifyContent: 'center', alignItems: 'center' },
+  sectionIconText: { fontSize: 16 },
+  sectionTitle: { fontSize: 15, fontWeight: '700', color: C.textPrimary },
+
+  // Fields
+  fieldWrap: { marginBottom: 12 },
+  fieldLabel: { fontSize: 12, fontWeight: '600', color: C.textSub, marginBottom: 6, letterSpacing: 0.2 },
+  fieldBox: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: C.inputBg,
+    borderRadius: 12, borderWidth: 1.5, borderColor: C.border,
+    paddingHorizontal: 14, minHeight: 50,
   },
-  removeButtonText: {
-    color: '#ffffff',
-    fontWeight: 'bold',
-    fontSize: 12,
+  fieldIcon: { fontSize: 15, marginRight: 8, color: C.primary },
+  fieldInput: {
+    flex: 1, color: C.textPrimary, fontSize: 15, fontWeight: '500',
+    paddingVertical: Platform.OS === 'ios' ? 12 : 8,
   },
-  submitButton: {
-    backgroundColor: '#1e3a8a',
-    padding: 15,
-    alignItems: 'center',
-    borderRadius: 8,
-    marginTop: 10,
+
+  // Mobile row
+  mobileRow: { flexDirection: 'row', gap: 10, marginBottom: 12 },
+  mobileBox: {
+    flex: 1, flexDirection: 'row', alignItems: 'center', backgroundColor: C.inputBg,
+    borderRadius: 12, borderWidth: 1.5, borderColor: C.border,
+    paddingHorizontal: 14, minHeight: 50,
   },
-  submitButtonText: {
-    color: '#ffffff',
-    fontWeight: 'bold',
-    fontSize: 16,
+  pbBtn: {
+    width: 50, height: 50, backgroundColor: C.primary, borderRadius: 12,
+    justifyContent: 'center', alignItems: 'center',
+    shadowColor: C.primary, shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.3, shadowRadius: 8, elevation: 4,
   },
-  textArea: {
-    height: 100,
-    textAlignVertical: 'top',
+
+  // Balance
+  balanceCard: {
+    flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center',
+    backgroundColor: C.primaryPale, borderRadius: 12, padding: 14, marginTop: 6,
+    borderWidth: 1, borderColor: C.border,
   },
+  balanceLabel: { fontSize: 13, fontWeight: '600', color: C.textSub },
+  balanceAmount: { fontSize: 20, fontWeight: '800', letterSpacing: -0.5 },
+
+  // Date cards
+  dateCard: {
+    backgroundColor: C.inputBg, borderRadius: 12,
+    borderWidth: 1.5, borderColor: C.border, padding: 14,
+  },
+  dateCardLabel: { fontSize: 11, fontWeight: '700', color: C.textMuted, letterSpacing: 0.6, textTransform: 'uppercase', marginBottom: 8 },
+  dateCardRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  calIcon: { width: 16, height: 16, tintColor: C.primary },
+  dateCardValue: { fontSize: 14, fontWeight: '600', color: C.textPrimary },
+  datePlaceholder: { color: C.textMuted, fontWeight: '400' },
+
+  // Upload
+  uploadBtn: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: C.primaryPale,
+    borderRadius: 14, padding: 14, borderWidth: 1.5, borderColor: C.border,
+    borderStyle: 'dashed', gap: 12,
+  },
+  uploadIconBox: {
+    width: 42, height: 42, borderRadius: 12, backgroundColor: C.primaryLight,
+    justifyContent: 'center', alignItems: 'center',
+  },
+  uploadTitle: { fontSize: 14, fontWeight: '700', color: C.textPrimary },
+  uploadSub: { fontSize: 12, color: C.textMuted, marginTop: 2 },
+  uploadPlus: { fontSize: 26, fontWeight: '300', color: C.primary },
+
+  // Image grid
+  imgGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12 },
+  imgThumb: { position: 'relative' },
+  thumbImg: { width: imageSize, height: imageSize, borderRadius: 12, borderWidth: 2, borderColor: C.border },
+  thumbDel: {
+    position: 'absolute', top: -6, right: -6,
+    width: 22, height: 22, borderRadius: 11,
+    backgroundColor: C.accent, justifyContent: 'center', alignItems: 'center',
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.2, shadowRadius: 2, elevation: 3,
+  },
+  thumbDelText: { color: C.white, fontSize: 9, fontWeight: '800' },
+
+  // Submit
+  submitBtn: {
+    backgroundColor: C.primary, borderRadius: 16, paddingVertical: 17,
+    alignItems: 'center', marginTop: 6,
+    shadowColor: C.primary, shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35, shadowRadius: 12, elevation: 6,
+  },
+  submitText: { color: C.white, fontSize: 16, fontWeight: '700', letterSpacing: 0.4 },
+
+  // Overlay + loader
   overlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    zIndex: 1000
+    position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+    backgroundColor: 'rgba(13,43,54,0.5)',
+    justifyContent: 'center', alignItems: 'center', zIndex: 1000,
   },
+  loaderCard: {
+    backgroundColor: C.white, borderRadius: 18,
+    paddingVertical: 28, paddingHorizontal: 40,
+    alignItems: 'center', gap: 12,
+  },
+  loaderText: { color: C.textPrimary, fontSize: 14, fontWeight: '600' },
+
+  // Contacts modal (bottom sheet)
+  modalBackdrop: { flex: 1, backgroundColor: 'rgba(13,43,54,0.5)', justifyContent: 'flex-end' },
+  modalSheet: {
+    backgroundColor: C.white, borderTopLeftRadius: 26, borderTopRightRadius: 26,
+    paddingHorizontal: 20, paddingTop: 10, maxHeight: '82%',
+  },
+  sheetHandle: { width: 36, height: 4, borderRadius: 2, backgroundColor: '#DDD', alignSelf: 'center', marginBottom: 16 },
+  sheetHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 },
+  sheetTitle: { fontSize: 20, fontWeight: '700', color: C.textPrimary },
+  sheetSub: { fontSize: 12, color: C.textMuted, marginTop: 2 },
+  sheetClose: { width: 36, height: 36, borderRadius: 18, backgroundColor: C.bg, justifyContent: 'center', alignItems: 'center' },
+  searchWrap: {
+    flexDirection: 'row', alignItems: 'center', backgroundColor: C.inputBg,
+    borderRadius: 12, borderWidth: 1.5, borderColor: C.border,
+    paddingHorizontal: 14, marginBottom: 14, minHeight: 46,
+  },
+  searchInput: { flex: 1, color: C.textPrimary, fontSize: 15, paddingVertical: 8 },
+
+  // Contact rows
+  contactRow: {
+    flexDirection: 'row', alignItems: 'center',
+    paddingVertical: 12, borderBottomWidth: 1, borderBottomColor: '#F2F8F7', gap: 12,
+  },
+  contactAvatar: {
+    width: 44, height: 44, borderRadius: 22,
+    backgroundColor: C.primaryLight, justifyContent: 'center', alignItems: 'center',
+  },
+  contactAvatarLetter: { color: C.primary, fontSize: 17, fontWeight: '700' },
+  contactName: { fontSize: 15, fontWeight: '600', color: C.textPrimary },
+  contactNum: { fontSize: 13, color: C.textMuted, marginTop: 2 },
 });
 
-export default AddUdhari
+export default AddUdhari;

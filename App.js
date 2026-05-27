@@ -8,6 +8,9 @@ import Login from './Components/Login/Login';
 import Home from './Components/Common/Home';
 import PinAuth from './Components/Login/PinAuth';
 import Toast from 'react-native-toast-message';
+import LottieView from 'lottie-react-native';
+import C from './colorConfig'
+
 
 function App() {
   const Stack = createStackNavigator();
@@ -68,10 +71,14 @@ function App() {
 
   if (!navPage) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'black' }}>
-        <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
-        <Image source={require('./assets/logo.png')} style={{ height: 300, width: 300 }} />
-      </View>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: C.bg }}>
+                <LottieView
+                  source={require('./assets/Coin purse.json')}
+                  autoPlay loop
+                  style={{ width: 140, height: 140 }}
+                />
+                <Text style={{ color: C.textMuted, marginTop: 12, fontSize: 14 }}>Loading LMJ</Text>
+              </View>
     );
   }
 
@@ -80,7 +87,7 @@ function App() {
       <Stack.Navigator initialRouteName={navPage}>
         <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
         <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />
-        <Stack.Screen name="PinAuth" component={PinAuth} options={{ headerShown: true, title: 'Authenticate with PIN' }} />
+        <Stack.Screen name="PinAuth" component={PinAuth} options={{ headerShown: false, title: 'Authenticate with PIN' }} />
       </Stack.Navigator>
       <Toast />
     </NavigationContainer>

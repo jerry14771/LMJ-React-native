@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
-import { FlatList, Modal, View, TextInput, Text, TouchableOpacity, Image, StyleSheet, Alert, ScrollView, Dimensions, ActivityIndicator, Button } from 'react-native';
+import { FlatList, Modal, View, TextInput, Text, TouchableOpacity, Image, StyleSheet, Alert, ScrollView, Dimensions, Button } from 'react-native';
 import ImagePicker from 'react-native-image-crop-picker';
 import { useNavigation } from '@react-navigation/native';
 import config from '../../config';
 import Header from '../Common/Header';
 import DatePicker from 'react-native-date-picker';
 import Contacts from 'react-native-contacts';
+import LottieView from 'lottie-react-native';
 
 const screenWidth = Dimensions.get('window').width;
 const imageSize = (screenWidth - 75) / 3;
@@ -565,7 +566,11 @@ const EditInvoiceFilter = ({ route }) => {
 
                 {activity && (
                     <View style={styles.overlay}>
-                        <ActivityIndicator size="large" color="#0000ff" />
+                        <LottieView
+                                                       source={require('../../assets/Coin purse.json')}
+                                                       autoPlay loop
+                                                       style={{ width: 140, height: 140 }}
+                                                     />
                     </View>
                 )}
             </View>
@@ -631,7 +636,11 @@ const EditInvoiceFilter = ({ route }) => {
 
             {
                 loadingContacts ? (<View style={styles.overlay}>
-                    <ActivityIndicator size="large" color="#0000ff" />
+                     <LottieView
+                                                       source={require('../../assets/Coin purse.json')}
+                                                       autoPlay loop
+                                                       style={{ width: 140, height: 140 }}
+                                                     />
                 </View>) : <></>
             }
 
