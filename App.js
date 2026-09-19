@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, Image, StatusBar, Alert } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
@@ -9,11 +9,16 @@ import Home from './Components/Common/Home';
 import PinAuth from './Components/Login/PinAuth';
 import Toast from 'react-native-toast-message';
 import LottieView from 'lottie-react-native';
-import C from './colorConfig'
+import C from './colorConfig';
+import {
+  registerForegroundHandler,
+  registerNotificationOpenedHandlers,
+} from './Components/Common/notificationService';
 
 
 function App() {
   const Stack = createStackNavigator();
+  const navigationRef = useRef(null);
   const [navPage, setNavPage] = useState(null); 
   const [isBiometricEnabled, setIsBiometricEnabled] = useState(false); 
 
@@ -63,6 +68,23 @@ function App() {
     checkLogin();
   }, []);
 
+  // Push notifications: foreground display + tap-to-open-invoice deep link.
+  // If the user taps a notification while the app is in the background, send
+  // them to the Home drawer first, then into the invoice's detail screen.
+  useEffect(() => {
+    const openInvoice = ({ invoiceId, invoice_number } = {}) => {
+      navigationRef.current?.navigate('InvoiceNav', {
+        screen: 'InvoiceDetail',
+        params: { invoiceid: invoiceId, source: 'PushNotification' },
+      });
+    };
+
+    const unsubscribeForeground = registerForegroundHandler(openInvoice);
+    registerNotificationOpenedHandlers(openInvoice);
+
+    return unsubscribeForeground;
+  }, []);
+
   useEffect(() => {
     if (isBiometricEnabled) {
       authenticateBiometric();
@@ -83,7 +105,7 @@ function App() {
   }
 
   return (
-    <NavigationContainer>
+    <NavigationContainer ref={navigationRef}>
       <Stack.Navigator initialRouteName={navPage}>
         <Stack.Screen name="Login" component={Login} options={{ headerShown: false }} />
         <Stack.Screen name="Home" component={Home} options={{ headerShown: false }} />

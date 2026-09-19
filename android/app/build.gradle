@@ -128,3 +128,6 @@ dependencies {
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
+
+// Firebase Cloud Messaging — reads android/app/google-services.json
+apply plugin: "com.google.gms.google-services"

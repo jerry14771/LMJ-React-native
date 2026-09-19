@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Jewelry notification icon — diamond in a ring (alpha-only, tinted gold) -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- gem (kite cut) -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1.8"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000"
+        android:pathData="M12,2.6 L19.8,8.6 L12,14.6 L4.2,8.6 Z" />
+    <!-- gem facets -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="1"
+        android:strokeLineJoin="round"
+        android:fillColor="#00000000"
+        android:pathData="M12,3.6 L16.4,7.2 L12,10.6 L7.6,7.2 Z M12,10.6 L12,3.6" />
+    <!-- ring band -->
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:fillColor="#00000000"
+        android:pathData="M6.6,13.4 C6.6,19.2 17.4,19.2 17.4,13.4" />
+</vector>

@@ -1,0 +1,2 @@
+# Firebase service-account key must never be committed
+secrets/
